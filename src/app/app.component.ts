@@ -11,7 +11,7 @@ export class AppComponent {
 
   showAd = false;
   currentAd = '';
-  private ads = ['assets/aviso_1.jpg'];
+  private ads = ['assets/bono_1.jpg', 'assets/bono_2.jpg','assets/aviso_1.jpg'];
   private adIndex = 0;
   private adInterval: any;
 

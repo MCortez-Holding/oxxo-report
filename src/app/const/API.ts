@@ -1,3 +1,3 @@
 export class API {
-   public static readonly url = 'http://localhost:3000/api'
+   public static readonly url = 'https://telco-reports.telcocontact.com/api'
 }
