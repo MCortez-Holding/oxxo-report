@@ -1,0 +1,354 @@
+.canvas-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  background-color: #0d1117;
+}
+
+.content-overlay {
+  position: relative;
+  z-index: 1;
+  color: white;
+}
+
+
+.table-glow {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.table-glow tbody tr {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+
+/* Resto de filas normales */
+.table-glow tbody tr:not(.top-1):not(.top-2):not(.top-3):hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: scale(1.01);
+}
+
+/* Icono de medalla */
+.medal-icon {
+  font-size: 1.5rem;
+  animation: glowPulse 1.5s infinite ease-in-out;
+  display: inline-block;
+}
+
+/* Efecto de pulso */
+@keyframes glowPulse {
+  0% { text-shadow: 0 0 5px #fff; }
+  50% { text-shadow: 0 0 15px #fff; }
+  100% { text-shadow: 0 0 5px #fff; }
+}
+
+/* Cabecera de tabla */
+.table-header {
+  background-color: #161b22;
+  color: #58a6ff;
+  font-weight: bold;
+  border-bottom: 2px solid #30363d;
+}
+
+/* Scroll en tabla */
+.table-responsive {
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+/* Ajustes adicionales */
+.title-box {
+  background: linear-gradient(45deg, #eb1f1f, #e26f11);
+  color: white;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 0 15px #1f6febAA;
+}
+
+.title-text {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+@keyframes intenseGlow {
+  0% {
+    box-shadow: 0 0 30px 10px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 50px 20px rgba(255, 215, 0, 1), inset 0 0 20px rgba(255, 215, 0, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 30px 10px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.4);
+  }
+}
+
+@keyframes silverGlow {
+  0% {
+    box-shadow: 0 0 30px 10px rgba(192, 192, 192, 0.6), inset 0 0 10px rgba(192, 192, 192, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 50px 20px rgba(192, 192, 192, 1), inset 0 0 20px rgba(192, 192, 192, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 30px 10px rgba(192, 192, 192, 0.6), inset 0 0 10px rgba(192, 192, 192, 0.4);
+  }
+}
+
+@keyframes bronzeGlow {
+  0% {
+    box-shadow: 0 0 30px 10px rgba(205, 127, 50, 0.6), inset 0 0 10px rgba(205, 127, 50, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 50px 20px rgba(205, 127, 50, 1), inset 0 0 20px rgba(205, 127, 50, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 30px 10px rgba(205, 127, 50, 0.6), inset 0 0 10px rgba(205, 127, 50, 0.4);
+  }
+}
+/* Animación para nuevas filas */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.new-row {
+  animation: fadeIn 1s ease-out;
+  background-color: rgba(0, 191, 255, 0.1);
+  transition: all 0.5s ease;
+}
+
+.new-row:hover {
+  background-color: rgba(0, 191, 255, 0.2);
+}
+
+/* Estilos para el contador */
+.countdown-container {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 8px 15px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.countdown-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
+}
+
+.countdown-timer {
+  font-size: 1.2rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #FFD700;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 4px 10px;
+  border-radius: 10px;
+  min-width: 60px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Ajuste responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .title-box .d-flex {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .countdown-container {
+    margin-top: 10px;
+  }
+}
+
+.medal-icon {
+    font-size: 1.5rem;
+    display: inline-block;
+    min-width: 30px;
+    text-align: center;
+}
+
+.gold {
+    color: gold;
+    text-shadow: 0 0 3px rgba(255, 215, 0, 0.7);
+}
+
+.silver {
+    color: silver;
+    text-shadow: 0 0 3px rgba(192, 192, 192, 0.7);
+}
+
+.bronze {
+    color: #cd7f32; /* bronze color */
+    text-shadow: 0 0 3px rgba(205, 127, 50, 0.7);
+}
+
+/* Style for the top rows */
+.top-1 {
+    background-color: rgba(255, 215, 0, 0.1) !important;
+    font-weight: bold;
+}
+
+.top-2 {
+    background-color: rgba(192, 192, 192, 0.1) !important;
+    font-weight: bold;
+}
+
+.top-3 {
+    background-color: rgba(205, 127, 50, 0.1) !important;
+    font-weight: bold;
+}
+
+/* Animation for new rows */
+.new-row {
+    animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+    0% { background-color: rgba(0, 255, 0, 0.3); }
+    100% { background-color: transparent; }
+}
+
+/* Ajustes para la tabla */
+.table-glow {
+  width: auto !important; /* Permite que la tabla se expanda según el contenido */
+  table-layout: auto !important; /* Ajuste automático del layout */
+}
+
+/* Estilos para la celda del nombre del asesor */
+.table-glow td:nth-child(2) { /* Selecciona la segunda columna (Asesor) */
+  white-space: nowrap; /* Mantiene el texto en una sola línea */
+  padding-right: 20px; /* Espacio adicional para separación */
+}
+
+/* Asegura que el contenedor principal permita scroll horizontal si es necesario */
+.table-responsive {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Opcional: ajustar el ancho mínimo de otras celdas para mejor visualización */
+.table-glow th:not(:nth-child(2)),
+.table-glow td:not(:nth-child(2)) {
+  min-width: 100px; /* Ancho mínimo para otras columnas */
+}
+.sales-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.sales-details div {
+  white-space: nowrap;
+}
+
+.chart-container {
+  width: 300px;
+  height: 150px;
+  margin: 0 auto;
+}
+
+/* Ajustes para la tabla con las nuevas columnas */
+.table-glow td:nth-child(4), /* Detalle de ventas */
+.table-glow td:nth-child(5) { /* Gráfico */
+  padding: 8px;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 1200px) {
+  .chart-container {
+    width: 250px;
+  }
+}
+
+@media (max-width: 992px) {
+  .chart-container {
+    width: 200px;
+    height: 120px;
+  }
+  
+  .sales-details {
+    grid-template-columns: 1fr;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    width: 150px;
+    height: 100px;
+  }
+  
+  .table-glow td:nth-child(4),
+  .table-glow td:nth-child(5) {
+    padding: 4px;
+  }
+}
+
+/* Mantén todos los estilos anteriores y añade estos nuevos */
+
+.dashboard-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.sales-column {
+  flex: 1;
+  min-width: 0; /* Permite que la columna se reduzca */
+}
+
+.chart-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-chart-container {
+  position: relative;
+  height: 100%;
+  min-height: 500px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajustes responsivos */
+@media (max-width: 1200px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  
+  .main-chart-container {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-chart-container {
+    min-height: 300px;
+  }
+}
+
+/* En tu archivo de estilos */
+.form-select {
+    background-color: #2a3042;
+    color: #fff;
+    border: 1px solid #3a4055;
+    max-width: 200px;
+    margin-bottom: 15px;
+}
+
+.form-select:focus {
+    border-color: #4e5d8c;
+    box-shadow: 0 0 0 0.25rem rgba(78, 93, 140, 0.25);
+}

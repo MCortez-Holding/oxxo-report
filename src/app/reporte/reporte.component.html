@@ -1,0 +1,67 @@
+<div class="main-container">
+    <canvas #particlesCanvas class="canvas-background"></canvas>
+<center>
+    <div class="container-fluid content-overlay">
+        <div class="row justify-content-center">
+            <div class="col-xxl-10 col-xl-11 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="alert alert-info title-box" role="alert">
+                    <h2 class="title-text">🏆 REPORTE GENERAL (instaladas)🏆</h2>
+                </div>
+
+                <div class="dashboard-container">
+                    <!-- Columna izquierda - Tabla de asesores -->
+                    <!-- Modifica la tabla en tu HTML -->
+                    <div class="sales-column">
+                        <div class="mb-3">
+                            <select class="form-select" [(ngModel)]="rangoSeleccionado" (change)="cambiarRango()">
+                                <option value="hoy">Hoy</option>
+                                <option value="semana">Esta semana</option>
+                                <option value="mes">Este mes</option>
+                                <option value="todo">Todo</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive compact-table">
+                            <table class="table table-striped table-glow" #tablaVentas>
+                                <thead class="table-header">
+                                    <tr>
+                                        <th scope="col" class="col-asesor">Asesor</th>
+                                        <th scope="col" class="col-ventas">Ventas</th>
+                                        <th scope="col" class="col-programadas">Efectividad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let venta of ventas; let i = index" [ngClass]="{
+                        'top-1': i === 0, 
+                        'top-2': i === 1, 
+                        'top-3': i === 2,
+                        'new-row': isNewRow(i)
+                    }">
+                                        <td class="col-asesor">
+                                            <span *ngIf="i === 0" class="medal-icon gold">🥇</span>
+                                            <span *ngIf="i === 1" class="medal-icon silver">🥈</span>
+                                            <span *ngIf="i === 2" class="medal-icon bronze">🥉</span>
+                                            {{venta.advisor_name}}
+                                        </td>
+                                        <td class="col-ventas">{{venta.sales_attended}}</td>
+                                        <td class="col-programadas">{{ (venta.sales_attended / venta.number_sales * 100)
+                                            | number:'1.2-2' }}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha - Gráfico grande -->
+                    <div class="chart-column">
+                        <div class="main-chart-container">
+                            <canvas #mainChartCanvas></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="countdown-timer">{{countdown}}</span>
+    </div>
+</center>
+    <div id="fireEffect" class="fire-effect"></div>
+</div>
