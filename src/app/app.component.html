@@ -2,7 +2,11 @@
 <router-outlet></router-outlet>
 
 <div class="ad-overlay" *ngIf="showAd">
+<div class="ad-overlay" *ngIf="showAd">
   <div class="ad-container">
-    <img [src]="currentAd" class="animated-ad" />
+    <img *ngIf="!isVideo(currentAd)" [src]="currentAd" class="animated-ad-img" />
+    <img *ngIf="isVideo(currentAd)" [src]="currentAd.replace('.mp4', '.gif')" class="animated-ad-video" />
   </div>
+</div>
+
 </div>

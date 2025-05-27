@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -6,51 +6,77 @@ import { Component } from '@angular/core';
   standalone: false,
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
     title = 'telco-report.UI';
+  @ViewChild('adVideo') adVideoRef!: ElementRef<HTMLVideoElement>;
 
   showAd = false;
   currentAd = '';
-  private ads = ['assets/bono_1.jpg', 'assets/bono_2.jpg','assets/aviso_1.jpg'];
+  private ads = ['assets/video_1.gif', 'assets/bono_1.jpg', 'assets/bono_2.jpg','assets/aviso_1.jpg'];
   private adIndex = 0;
   private adInterval: any;
 
-  ngOnInit(): void {
+
+ngOnInit(): void {
     this.startAdLoop();
   }
 
-  startAdLoop(): void {
-    this.showRandomAd();
+ngAfterViewInit(): void {
+  // Espera a que el usuario haga click para poder reproducir
+  const onUserInteraction = () => {
+    this.playVideoIfNeeded();
+    window.removeEventListener('click', onUserInteraction);
+    window.removeEventListener('touchstart', onUserInteraction);
+  };
 
-    this.setNextAdInterval();
-  }
+  window.addEventListener('click', onUserInteraction);
+  window.addEventListener('touchstart', onUserInteraction);
+}
 
-  private showRandomAd(): void {
-    this.showAd = true;
-    this.currentAd = this.ads[this.adIndex];
-    this.adIndex = (this.adIndex + 1) % this.ads.length;
-
-    setTimeout(() => {
-      this.showAd = false;
-      this.setNextAdInterval();
-    }, 5000);
-  }
-
-  private setNextAdInterval(): void {
-    if (this.adInterval) {
-      clearTimeout(this.adInterval);
-    }
-
-    const randomTime = Math.floor(Math.random() * (100000 - 10000 + 1)) + 10000;
-    
-    this.adInterval = setTimeout(() => {
-      this.showRandomAd();
-    }, randomTime);
-  }
 
   ngOnDestroy(): void {
     if (this.adInterval) {
       clearTimeout(this.adInterval);
+    }
+  }
+
+  startAdLoop(): void {
+    this.showRandomAd();
+  }
+
+  private showRandomAd(): void {
+  this.showAd = true;
+  this.currentAd = this.ads[this.adIndex];
+  this.adIndex = (this.adIndex + 1) % this.ads.length;
+
+  const duration = this.isVideo(this.currentAd) ? 20000 : 5000; // duración anuncio
+
+  if (this.isVideo(this.currentAd)) {
+    setTimeout(() => this.playVideoIfNeeded(), 100);
+  }
+
+  // Ocultar anuncio después de la duración definida
+  setTimeout(() => {
+    this.showAd = false;
+
+    // Después de ocultar anuncio esperar tiempo aleatorio para mostrar el siguiente
+    const randomTime = Math.floor(Math.random() * (100000 - 10000 + 1)) + 10000;
+    this.adInterval = setTimeout(() => {
+      this.showRandomAd();
+    }, randomTime);
+  }, duration);
+}
+
+
+  isVideo(file: string): boolean {
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.gif'];
+    return videoExtensions.some(ext => file.toLowerCase().endsWith(ext));
+  }
+
+  playVideoIfNeeded() {
+    if (this.adVideoRef && this.adVideoRef.nativeElement) {
+      const video = this.adVideoRef.nativeElement;
+      video.play().catch(err => console.warn('Autoplay error:', err));
     }
   }
 }

@@ -13,18 +13,25 @@
 }
 
 .ad-container {
-  animation: fade-in 1s ease-out, fade-out 1s ease-in 4s forwards;
+animation: fade-in 1s ease-out;
   background-color: white;
   padding: 20px;
   border-radius: 20px;
   box-shadow: 0 0 50px orange;
 }
 
-.animated-ad {
+.animated-ad-img {
   max-width: 400px;
   max-height: 90vh;
   border-radius: 10px;
   animation: pulse 1s infinite alternate;
+}
+
+.animated-ad-video {
+  width: 100%;
+  height: auto;
+  max-height: 90vh;
+  border-radius: 10px;
 }
 
 @keyframes fade-in {
