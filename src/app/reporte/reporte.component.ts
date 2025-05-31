@@ -285,7 +285,15 @@ export class ReporteComponent implements AfterViewInit, OnInit{
             if (JSON.stringify(this.ventas) !== JSON.stringify(data.ventas)) {
                 this.previousVentas = [...this.ventas];
                 // Ordenar por sales_attended de mayor a menor
-                this.ventas = data.ventas.sort((a: any, b: any) => b.sales_attended - a.sales_attended);
+this.ventas = data.ventas.sort((a: any, b: any) => {
+    if (b.sales_attended !== a.sales_attended) {
+        return b.sales_attended - a.sales_attended; // Prioridad: ventas instaladas
+    } else {
+        const efectividadA = a.sales_attended / a.number_sales;
+        const efectividadB = b.sales_attended / b.number_sales;
+        return efectividadB - efectividadA; // Segundo criterio: efectividad
+    }
+});
                 setTimeout(() => this.createMainChart(), 0);
                 console.log('Datos actualizados:', data);
             }

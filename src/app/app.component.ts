@@ -12,7 +12,7 @@ export class AppComponent implements AfterViewInit {
 
   showAd = false;
   currentAd = '';
-  private ads = [ 'assets/video_1.gif', 'assets/bono_1.jpg', 'assets/bono_2.jpg','assets/aviso_1.jpg',  'assets/foto_edu.png'];
+  private ads = [ 'assets/top1.jpg', 'assets/video_1.gif', 'assets/bono_1.jpg', 'assets/bono_2.jpg','assets/aviso_1.jpg'];
   private adIndex = 0;
   private adInterval: any;
 
