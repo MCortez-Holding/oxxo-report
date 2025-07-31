@@ -155,21 +155,22 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
     window.addEventListener('resize', resizeCanvas);
   }
 
-  obtenerVentas() {
+obtenerVentas() {
   const hoy = new Date();
 
   this.ventasService.getVentas(hoy, hoy).subscribe({
     next: (data: any) => {
       console.log('Respuesta completa:', data);
 
-      // ✅ Tomar la propiedad correcta
-      const ventas = data.datos;
+      let ventas = data.datos;
+
+      ventas.sort((a: any, b: any) => Number(b.total) - Number(a.total));
 
       // Comparar con los datos anteriores
       if (JSON.stringify(this.ventas) !== JSON.stringify(ventas)) {
         this.previousVentas = [...this.ventas];
         this.ventas = ventas;
-        console.log('Datos actualizados:', ventas);
+        console.log('Datos actualizados (ordenados):', ventas);
       }
     },
     error: (err) => {
@@ -177,6 +178,7 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
     }
   });
 }
+
 
 
   // Método para verificar si una fila es nueva
