@@ -206,7 +206,7 @@ export class ReporteComponent implements AfterViewInit, OnInit{
        draw(ctx: CanvasRenderingContext2D) {
          ctx.beginPath();
          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-         ctx.fillStyle = '#FFA500';
+         ctx.fillStyle = '#FF0000';
          ctx.fill();
        }
      }
@@ -235,7 +235,7 @@ export class ReporteComponent implements AfterViewInit, OnInit{
            const distance = dx * dx + dy * dy;
            if (distance < 10000) {
              ctx.beginPath();
-             ctx.strokeStyle = `rgba(0, 191, 255, ${1 - distance / 10000})`;
+ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
              ctx.lineWidth = 0.4;
              ctx.moveTo(particles[i].x, particles[i].y);
              ctx.lineTo(particles[j].x, particles[j].y);

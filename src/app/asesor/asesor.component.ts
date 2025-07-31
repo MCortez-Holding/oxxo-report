@@ -105,7 +105,7 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
       draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = '#FFA500';
+ctx.fillStyle = '#FF0000';
         ctx.fill();
       }
     }
@@ -134,7 +134,7 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
           const distance = dx * dx + dy * dy;
           if (distance < 10000) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(0, 191, 255, ${1 - distance / 10000})`;
+ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
             ctx.lineWidth = 0.4;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -156,22 +156,28 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   obtenerVentas() {
-    const hoy = new Date();
+  const hoy = new Date();
 
-    this.ventasService.getVentas(hoy, hoy).subscribe({
-      next: (data: any) => {
-        // Comparar con los datos anteriores para detectar cambios
-        if (JSON.stringify(this.ventas) !== JSON.stringify(data.ventas)) {
-          this.previousVentas = [...this.ventas];
-          this.ventas = data.ventas;
-          console.log('Datos actualizados:', data);
-        }
-      },
-      error: (err) => {
-        console.error('Error al obtener ventas:', err);
+  this.ventasService.getVentas(hoy, hoy).subscribe({
+    next: (data: any) => {
+      console.log('Respuesta completa:', data);
+
+      // ✅ Tomar la propiedad correcta
+      const ventas = data.datos;
+
+      // Comparar con los datos anteriores
+      if (JSON.stringify(this.ventas) !== JSON.stringify(ventas)) {
+        this.previousVentas = [...this.ventas];
+        this.ventas = ventas;
+        console.log('Datos actualizados:', ventas);
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error('Error al obtener ventas:', err);
+    }
+  });
+}
+
 
   // Método para verificar si una fila es nueva
   isNewRow(index: number): boolean {

@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { API } from '../const/API';
 import { Observable } from 'rxjs';
@@ -8,6 +8,8 @@ import { Observable } from 'rxjs';
 })
 export class VentasService {
 
+  private readonly AUTH_USER = 'kevinrrdev';
+  private readonly AUTH_PASS = 'KD3z*1112099xD';
   constructor(private http: HttpClient) { }
 
   getFechaHoyFormateada(): string {
@@ -19,14 +21,20 @@ export class VentasService {
   }
 
 getVentas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
-  const timestamp = new Date().getTime();  
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-    const headers = new HttpHeaders()
-    .set('Cache-Control', 'no-cache, no-store, must-revalidate')
-    .set('Pragma', 'no-cache')
-    .set('Expires', '0');
-  const url = `${API.url}/ventas?start=${formatDate(fechaInicio)}&end=${formatDate(fechaFin)}&_=${timestamp}`;
-  return this.http.get<any[]>(url);
-}
+    const body = new HttpParams()
+      .set('fechaIni', formatDate(fechaInicio))
+      .set('fechaFin', formatDate(fechaFin));
+
+    const headers = new HttpHeaders({
+  'Content-Type': 'application/x-www-form-urlencoded',
+  'Authorization': 'Basic ' + btoa(`${this.AUTH_USER}:${this.AUTH_PASS}`)
+});
+
+
+    const url = `${API.url}/reportGeneral.php?op=tableReportDay`;
+
+    return this.http.post<any[]>(url, body.toString(), { headers });
+  }
 }

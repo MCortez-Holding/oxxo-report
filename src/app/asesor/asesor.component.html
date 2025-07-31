@@ -16,7 +16,6 @@
                                 <th scope="col">Subidas</th>
 <!--                                 <th scope="col">a Validar</th>
                                 <th scope="col">a Programar</th> -->
-                                <th scope="col">Programadas</th>
                                 <th scope="col">Atendidas</th>
                             </tr>
                         </thead>
@@ -33,12 +32,11 @@
                                     <span *ngIf="i === 2" class="medal-icon bronze">🥉</span>
                                     <span *ngIf="i >= 3">{{i + 1}}</span>
                                 </td>
-                                <td>{{venta.advisor_name}}</td>
-                                <td>{{venta.number_sales}}</td>
+                                <td>{{venta.asesor}}</td>
+                                <td>{{venta.total}}</td>
                                <!--  <td>{{venta.sales_to_validate}}</td>
                                 <td>{{venta.program_sales}}</td> -->
-                                <td>{{venta.programmed_sales}}</td>
-                                <td>{{venta.sales_attended}}</td>
+                                <td>{{venta.atendida}}</td>
                             </tr>
                         </tbody>
                     </table>
