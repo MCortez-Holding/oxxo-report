@@ -21,7 +21,7 @@ animation: fade-in 1s ease-out;
 }
 
 .animated-ad-img {
-  max-width: 400px;
+  max-width: 90vw;
   max-height: 90vh;
   border-radius: 10px;
   animation: pulse 1s infinite alternate;
