@@ -12,7 +12,7 @@ export class AppComponent implements AfterViewInit {
 
   showAd = false;
   currentAd = '';
-  private ads = ['assets/1.jpg', 'assets/2.jpg']; //AGREGAR IMAGENES
+  private ads = ['assets/1.jpg', 'assets/2.jpg', 'assets/3.jpg']; //AGREGAR IMAGENES
   private adIndex = 0;
   private adInterval: any;
 
@@ -49,7 +49,7 @@ ngAfterViewInit(): void {
   this.currentAd = this.ads[this.adIndex];
   this.adIndex = (this.adIndex + 1) % this.ads.length;
 
-  const duration = this.isVideo(this.currentAd) ? 20000 : 5000; // duración anuncio
+  const duration = this.isVideo(this.currentAd) ? 20000 : 20000; // duración anuncio
 
   if (this.isVideo(this.currentAd)) {
     setTimeout(() => this.playVideoIfNeeded(), 100);
