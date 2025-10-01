@@ -19,8 +19,13 @@ export class VentasService {
     const año = hoy.getFullYear();
     return `${año}-${mes}-${dia}`;
   }
-
-getVentas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {
+  private getAuthHeaders(): HttpHeaders {
+    const credentials = btoa(`${this.AUTH_USER}:${this.AUTH_PASS}`);
+    return new HttpHeaders({
+      'Authorization': `Basic ${credentials}`
+    });
+  }   
+  getVentas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {
     const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
     const body = new HttpParams()
@@ -28,13 +33,26 @@ getVentas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {
       .set('fechaFin', formatDate(fechaFin));
 
     const headers = new HttpHeaders({
-  'Content-Type': 'application/x-www-form-urlencoded',
-  'Authorization': 'Basic ' + btoa(`${this.AUTH_USER}:${this.AUTH_PASS}`)
-});
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa(`${this.AUTH_USER}:${this.AUTH_PASS}`)
+    });
 
 
     const url = `${API.url}/reportGeneral.php?op=tableReportDay`;
 
     return this.http.post<any[]>(url, body.toString(), { headers });
+  }
+  getVentasInstaladas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {
+   const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+    const formData = new FormData();
+    formData.append('fechaIni', formatDate(fechaInicio));
+    formData.append('fechaFin', formatDate(fechaFin));
+
+    const url = `${API.url}/reportGeneral.php?op=tableReportInstaladas`;
+
+    return this.http.post<any[]>(url, formData, {
+      headers: this.getAuthHeaders()
+    });
   }
 }

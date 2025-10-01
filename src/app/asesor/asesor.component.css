@@ -13,6 +13,13 @@
   z-index: 1;
   color: white;
 }
+.title-box-success {
+  background: linear-gradient(45deg, #24953a, #10a12d);
+  color: white;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 0 15px #000000aa;
+}
 
 .table-glow {
   background-color: rgba(255, 255, 255, 0.02);

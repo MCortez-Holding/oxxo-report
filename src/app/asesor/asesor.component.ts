@@ -10,7 +10,8 @@ import { VentasService } from '../services/ventas.service';
 export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('particlesCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   ventas: any[] = [];
-    private updateInterval: any;
+  instaladas: any[] = [];
+  private updateInterval: any;
   private countdownInterval: any;
   private previousVentas: any[] = [];
   countdown: string = '02:00'; // Formato MM:SS
@@ -178,8 +179,35 @@ obtenerVentas() {
     }
   });
 }
+obtenerVentasIntaladas() {
+    const hoy = new Date();
+    const fechaIni = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const fechaFin = hoy;
 
+    this.ventasService.getVentasInstaladas(fechaIni, fechaFin).subscribe({
+      next: (data: any) => {
+        const ventasMapeadas = data.datos.map((item: any) => ({
+          vintaladas: parseInt(item.vintaladas)
+        }));
+        ventasMapeadas.sort((a: any, b: any) => {
+          return b.vintaladas - a.vintaladas;
+        });
+        if (JSON.stringify(this.instaladas) !== JSON.stringify(ventasMapeadas)) {
+          this.instaladas = ventasMapeadas;
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener ventas:', err);
+      }
+    });
+  }
 
+get ventasInstaladas(): number {
+  return this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0);
+}
+get ventasFaltantes(): number {
+  return 2000 -(this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0));
+}
 
   // Método para verificar si una fila es nueva
   isNewRow(index: number): boolean {
