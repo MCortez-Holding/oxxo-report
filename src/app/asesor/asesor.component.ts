@@ -18,13 +18,15 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   updateFrequency: number = 120; // Tiempo en segundos (2 minutos)
   constructor(private ventasService: VentasService) {}
 
-   ngOnInit(): void {
+  ngOnInit(): void {
     this.obtenerVentas();
     this.startCountdown();
+    this.obtenerVentasIntaladas();
     // Configurar intervalo para actualizar cada 2 minutos (120000 ms)
     this.updateInterval = setInterval(() => {
       this.obtenerVentas();
       this.resetCountdown();
+      this.obtenerVentasIntaladas();
     }, this.updateFrequency * 1000);
   }
 
@@ -40,17 +42,17 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
 
    private startCountdown() {
     let secondsLeft = this.updateFrequency;
-    
+
     this.countdownInterval = setInterval(() => {
       secondsLeft--;
-      
+
       if (secondsLeft < 0) {
         secondsLeft = this.updateFrequency;
       }
-      
+
       const minutes = Math.floor(secondsLeft / 60);
       const seconds = secondsLeft % 60;
-      
+
       this.countdown = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }, 1000);
   }
@@ -213,14 +215,14 @@ get ventasFaltantes(): number {
   isNewRow(index: number): boolean {
     // Si no tenemos datos anteriores, no es nueva
     if (!this.previousVentas || this.previousVentas.length === 0) return false;
-    
+
     // Si el índice es mayor que los datos anteriores, es nueva
     if (index >= this.previousVentas.length) return true;
-    
+
     // Comparar los datos para ver si ha cambiado
     const currentVenta = this.ventas[index];
     const previousVenta = this.previousVentas[index];
-    
+
     return JSON.stringify(currentVenta) !== JSON.stringify(previousVenta);
   }
 }
