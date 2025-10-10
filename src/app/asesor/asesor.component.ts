@@ -208,7 +208,7 @@ get ventasInstaladas(): number {
   return this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0);
 }
 get ventasFaltantes(): number {
-  return 2000 -(this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0));
+  return 1200 -(this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0));
 }
 
   // Método para verificar si una fila es nueva
