@@ -12,7 +12,7 @@ export class AppComponent implements AfterViewInit {
 
   showAd = false;
   currentAd = '';
-  private ads = ['assets/1.jpg', 'assets/2.jpg', 'assets/3.jpg', 'assets/4.jpg']; //AGREGAR IMAGENES
+  private ads = ['assets/1.jpeg', 'assets/2.jpeg', 'assets/3.jpeg', 'assets/4.jpeg', 'assets/5.jpeg', 'assets/6.jpeg', 'assets/7.jpeg', 'assets/8.jpeg']; //AGREGAR IMAGENES
   private adIndex = 0;
   private adInterval: any;
 
