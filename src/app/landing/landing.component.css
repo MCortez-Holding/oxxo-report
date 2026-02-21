@@ -1,0 +1,111 @@
+/* Contenedor full-screen para TV y escritorio */
+.landing-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+
+.landing-card {
+  background: rgba(22, 27, 34, 0.95);
+  border: 1px solid #30363d;
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.landing-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.landing-subtitle {
+  color: #8b949e;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.landing-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.landing-form label {
+  display: block;
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 0.5rem;
+}
+
+/* Controles grandes para TV / tactiles */
+.landing-select,
+.landing-input {
+  width: 100%;
+  font-size: clamp(1.1rem, 3vw, 1.35rem) !important;
+  padding: 0.85rem 1rem !important;
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #fff;
+}
+
+.landing-input::placeholder {
+  color: #6e7681;
+}
+
+.landing-hint {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 1.5rem;
+  word-break: break-all;
+}
+
+.landing-hint code {
+  background: #21262d;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.landing-actions {
+  margin-top: 1.5rem;
+}
+
+/* Botón grande y visible para TV */
+.btn-landing {
+  width: 100%;
+  font-size: clamp(1.1rem, 3vw, 1.4rem) !important;
+  padding: 1rem 1.5rem !important;
+  min-height: 56px;
+  border-radius: 12px;
+  font-weight: 600;
+  background: linear-gradient(45deg, #eb1f1f, #ff0000);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-landing:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+}
+
+.btn-landing:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.landing-error {
+  margin-top: 1rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+}

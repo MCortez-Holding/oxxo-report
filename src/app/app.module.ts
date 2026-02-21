@@ -7,7 +7,8 @@ import { ReporteComponent } from './reporte/reporte.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { CommonModule } from '@angular/common';
 import { AsesorComponent } from './asesor/asesor.component';
-import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
+import { LandingComponent } from './landing/landing.component';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -16,7 +17,8 @@ import { FormsModule } from '@angular/forms';
     AppComponent,
     ReporteComponent,
     NavBarComponent,
-    AsesorComponent
+    AsesorComponent,
+    LandingComponent
   ],
   imports: [
     BrowserModule,
