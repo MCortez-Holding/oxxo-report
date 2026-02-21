@@ -66,16 +66,24 @@ export class VentasService {
     return this.http.post<{ datos: any[] }>(url, body.toString(), { headers });
   }
 
-  getVentasInstaladas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {
+  /**
+   * Ventas instaladas: tableReportInstaladasTvFilter con fechaIni, fechaFin, id_usuarios e id_salas.
+   * Respuesta: { datos: [{ sala, asesor, instaladas, programadas, total, efectividad, totalugis }] }
+   */
+  getVentasInstaladas(fechaInicio: Date, fechaFin: Date): Observable<{ datos: any[] }> {
     const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const idUsers = this.configService.getIdUsers();
+    const idSalas = this.configService.getIdSalas();
 
     const formData = new FormData();
     formData.append('fechaIni', formatDate(fechaInicio));
     formData.append('fechaFin', formatDate(fechaFin));
+    formData.append('id_usuarios', idUsers);
+    formData.append('id_salas', idSalas);
 
-    const url = `${this.getBaseUrl()}/reportGeneral.php?op=tableReportInstaladas`;
+    const url = `${this.getBaseUrl()}/reportGeneral.php?op=tableReportInstaladasTvFilter`;
 
-    return this.http.post<any[]>(url, formData, {
+    return this.http.post<{ datos: any[] }>(url, formData, {
       headers: this.getAuthHeaders()
     });
   }

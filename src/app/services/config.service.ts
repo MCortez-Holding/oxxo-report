@@ -124,8 +124,16 @@ export class ConfigService {
       Authorization: 'Basic ' + btoa(`${config.authUser}:${config.authPass}`)
     });
 
+    /** Respuesta: puede venir en { datos: { meta, usuarios, salas } } o en la raíz */
     interface GetTvReportResponse {
       status?: boolean;
+      datos?: {
+        meta?: number | string | null;
+        usuarios?: number[] | null;
+        salas?: number[] | null;
+        usuarios_ids?: number[] | string | null;
+        salas_ids?: number[] | string | null;
+      };
       meta?: number | string | null;
       usuarios?: number[] | null;
       salas?: number[] | null;
@@ -149,10 +157,11 @@ export class ConfigService {
           this.primaryData$.next(fallback);
           return fallback;
         }
-        const usuarios = toIdsArray(data.usuarios ?? data.usuarios_ids);
-        const salas = toIdsArray(data.salas ?? data.salas_ids);
+        const raw = data.datos ?? data;
+        const usuarios = toIdsArray(raw.usuarios ?? (raw as any).usuarios_ids);
+        const salas = toIdsArray(raw.salas ?? (raw as any).salas_ids);
         const normalized: PrimaryData = {
-          meta: data.meta ?? null,
+          meta: raw.meta ?? null,
           usuarios,
           salas
         };

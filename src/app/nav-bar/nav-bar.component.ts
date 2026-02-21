@@ -16,6 +16,11 @@ export class NavBarComponent {
     private router: Router
   ) {}
 
+  get isConfigPage(): boolean {
+    const url = this.router.url.split('?')[0];
+    return url === '/' || url === '';
+  }
+
   ngOnInit(): void {
     setInterval(() => {
       this.currentTime = new Date();

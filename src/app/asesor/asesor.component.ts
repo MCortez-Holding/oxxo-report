@@ -181,13 +181,16 @@ obtenerVentas() {
 }
 obtenerVentasIntaladas() {
     const hoy = new Date();
-    const fechaIni = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    const fechaFin = hoy;
+    const año = hoy.getFullYear();
+    const mes = hoy.getMonth();
+    const fechaIni = new Date(año, mes, 1);
+    const fechaFin = new Date(año, mes + 1, 0);
 
     this.ventasService.getVentasInstaladas(fechaIni, fechaFin).subscribe({
-      next: (data: any) => {
-        const ventasMapeadas = data.datos.map((item: any) => ({
-          vintaladas: parseInt(item.vintaladas)
+      next: (data: { datos?: any[] }) => {
+        const raw = data.datos ?? [];
+        const ventasMapeadas = raw.map((item: any) => ({
+          vintaladas: parseInt(item.instaladas ?? item.vintaladas ?? 0, 10)
         }));
         ventasMapeadas.sort((a: any, b: any) => {
           return b.vintaladas - a.vintaladas;
@@ -202,12 +205,14 @@ obtenerVentasIntaladas() {
     });
   }
 
+get meta(): number {
+  return this.configService.getMeta();
+}
 get ventasInstaladas(): number {
   return this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0);
 }
 get ventasFaltantes(): number {
-  const meta = this.configService.getMeta();
-  return Math.max(0, meta - this.ventasInstaladas);
+  return Math.max(0, this.meta - this.ventasInstaladas);
 }
 
   // Método para verificar si una fila es nueva

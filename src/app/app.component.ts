@@ -5,8 +5,7 @@ import { ConfigService } from './services/config.service';
 /** Anuncios por sistema/empresa. Añade más rutas a cada array según necesites. */
 const ADS_BY_SYSTEM: Record<SistemaType, string[]> = {
   mcortez: [
-    'assets/17.jpeg', 'assets/18.jpeg', 'assets/19.jpeg',
-    'assets/20.jpeg', 'assets/21.jpeg', 'assets/22.jpeg'
+    // Añade aquí las imágenes de Mcortez
   ],
   telecom: [
     // Añade aquí las imágenes de Telecom, ej: 'assets/telecom/1.jpeg',
@@ -15,7 +14,8 @@ const ADS_BY_SYSTEM: Record<SistemaType, string[]> = {
     // Añade aquí las imágenes de Konectar
   ],
   comunica: [
-    // Añade aquí las imágenes de Comunica
+    'assets/17.jpeg', 'assets/18.jpeg', 'assets/19.jpeg',
+    'assets/20.jpeg', 'assets/21.jpeg', 'assets/22.jpeg'
   ]
 };
 

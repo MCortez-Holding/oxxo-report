@@ -5,7 +5,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
+      <ul class="navbar-nav me-auto" *ngIf="!isConfigPage">
         <li class="nav-item">
           <a class="nav-link" [routerLink]="'/reporte-general'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
             <i class="fas fa-chart-pie me-1"></i> Reporte General
@@ -18,7 +18,7 @@
         </li>
       </ul>
       <div class="d-flex align-items-center gap-2">
-        <button type="button" class="btn btn-outline-light btn-sm" (click)="salir()" title="Salir y elegir otra empresa / TV">
+        <button *ngIf="!isConfigPage" type="button" class="btn btn-outline-light btn-sm" (click)="salir()" title="Salir y elegir otra empresa / TV">
           <i class="fas fa-sign-out-alt me-1"></i> Salir
         </button>
         <span class="navbar-text me-3 d-none d-lg-block">

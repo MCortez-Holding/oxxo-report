@@ -21,6 +21,11 @@ export class ReporteComponent implements AfterViewInit, OnInit{
   updateFrequency: number = 120;
   private mainChart!: Chart;
 
+  /** Resumen del mes: solo cuando rangoSeleccionado === 'mes' */
+  totalVentasMes = 0;
+  totalProgramadosMes = 0;
+  totalInstaladosMes = 0;
+
   constructor(private ventasService: VentasService) {
     Chart.register(...registerables);
   }
@@ -60,19 +65,13 @@ export class ReporteComponent implements AfterViewInit, OnInit{
     const ctx = this.mainChartCanvas.nativeElement.getContext('2d');
     if (!ctx || this.ventas.length === 0) return;
 
-    const ventasOrdenadas = [...this.ventas].sort((a, b) => b.sales_attended - a.sales_attended);
+    const ventasOrdenadas = [...this.ventas].sort((a, b) => b.instaladas - a.instaladas);
 
-    // Calcular efectividad (ventas atendidas / ventas totales * 100)
-    const calcularEfectividad = (attended: number, total: number) => {
-        return total > 0 ? (attended / total) * 100 : 0;
-    };
-
-    // Preparar datos para el gráfico
     const labels = ventasOrdenadas.map(v => v.advisor_name);
     const datasets = [
         {
-            label: 'Efectividad',
-            data: ventasOrdenadas.map(v => calcularEfectividad(v.sales_attended, v.number_sales)),
+            label: 'Instaladas',
+            data: ventasOrdenadas.map(v => v.instaladas),
             backgroundColor: 'rgba(75, 192, 192, 0.7)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
@@ -97,29 +96,15 @@ export class ReporteComponent implements AfterViewInit, OnInit{
                 },
                 tooltip: {
                     mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        label: (context) => {
-                            // Asegurar que raw es un número
-                            const value = typeof context.raw === 'number' ? context.raw : 0;
-                            return `${context.dataset.label}: ${value.toFixed(2)}%`;
-                        }
-                    }
+                    intersect: false
                 }
             },
             scales: {
                 y: {
-                    max: 100, // Máximo del 100%
-                    min: 0,   // Mínimo del 0%
                     beginAtZero: true,
                     ticks: {
                         color: '#ffffff',
-                        stepSize: 10,
-                        callback: (value) => {
-                            // Asegurar que value es un número
-                            const numericValue = typeof value === 'number' ? value : 0;
-                            return `${numericValue}%`;
-                        }
+                        stepSize: 1
                     },
                     grid: {
                         color: 'rgba(255, 255, 255, 0.1)'
@@ -280,22 +265,34 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
             fechaInicio = new Date(hoy);
     }
 
-    this.ventasService.getVentas(fechaInicio, fechaFin).subscribe({
+    const año = hoy.getFullYear();
+    const mes = hoy.getMonth();
+    const fechaIniMes = new Date(año, mes, 1);
+    const fechaFinMes = new Date(año, mes + 1, 0);
+
+    this.ventasService.getVentasInstaladas(fechaIniMes, fechaFinMes).subscribe({
         next: (data: { datos?: any[] }) => {
             const raw = data.datos ?? [];
             const mapped = raw.map((item: any) => ({
-                advisor_name: item.asesor,
-                sales_attended: Number(item.atendida ?? 0),
-                number_sales: Number(item.total ?? 0)
+                sala: item.sala ?? '',
+                advisor_name: item.asesor ?? '',
+                instaladas: Number(item.instaladas ?? 0),
+                programadas: Number(item.programadas ?? 0),
+                total: Number(item.total ?? 0),
+                efectividad: Number(item.efectividad ?? 0),
+                totalugis: Number(item.totalugis ?? 0)
             }));
             const sorted = mapped.sort((a: any, b: any) => {
-                if (b.sales_attended !== a.sales_attended) {
-                    return b.sales_attended - a.sales_attended;
-                }
-                const efectividadA = a.number_sales ? a.sales_attended / a.number_sales : 0;
-                const efectividadB = b.number_sales ? b.sales_attended / b.number_sales : 0;
-                return efectividadB - efectividadA;
+                if (b.instaladas !== a.instaladas) return b.instaladas - a.instaladas;
+                return b.efectividad - a.efectividad;
             });
+            if (this.rangoSeleccionado === 'mes') {
+                this.totalVentasMes = raw.reduce((s, i) => s + Number(i.total ?? 0), 0);
+                this.totalProgramadosMes = raw.reduce((s, i) => s + Number(i.programadas ?? 0), 0);
+                this.totalInstaladosMes = raw.reduce((s, i) => s + Number(i.instaladas ?? 0), 0);
+            } else {
+                this.totalVentasMes = this.totalProgramadosMes = this.totalInstaladosMes = 0;
+            }
             if (JSON.stringify(this.ventas) !== JSON.stringify(sorted)) {
                 this.previousVentas = [...this.ventas];
                 this.ventas = sorted;
