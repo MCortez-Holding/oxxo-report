@@ -37,10 +37,10 @@ export class VentasService {
   }
 
   /**
-   * Reporte general: usa el endpoint tableReportDayReportTv con fechaIni, fechaFin, idUsers e idSalas
-   * (estos últimos obtenidos de la data primaria del ConfigService).
+   * Reporte: tableReportDayTvFilter con fechaIni, fechaFin, id_usuarios e id_salas.
+   * Respuesta: { datos: [...] } con sala, asesor, total, atendida, vprogramadas, etc.
    */
-  getVentas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {
+  getVentas(fechaInicio: Date, fechaFin: Date): Observable<{ datos: any[] }> {
     const config = this.configService.getCurrentConfig();
     if (!config) {
       throw new Error('No hay configuración de sistema. Debes completar el formulario de configuración.');
@@ -53,8 +53,8 @@ export class VentasService {
     const body = new HttpParams()
       .set('fechaIni', formatDate(fechaInicio))
       .set('fechaFin', formatDate(fechaFin))
-      .set('idUsers', idUsers)
-      .set('idSalas', idSalas);
+      .set('id_usuarios', idUsers)
+      .set('id_salas', idSalas);
 
     let headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
     const auth = this.getAuthHeaders();
@@ -62,8 +62,8 @@ export class VentasService {
       headers = headers.set('Authorization', auth.get('Authorization')!);
     }
 
-    const url = `${this.getBaseUrl()}/reportGeneral.php?op=tableReportDayReportTv`;
-    return this.http.post<any[]>(url, body.toString(), { headers });
+    const url = `${this.getBaseUrl()}/reportGeneral.php?op=tableReportDayTvFilter`;
+    return this.http.post<{ datos: any[] }>(url, body.toString(), { headers });
   }
 
   getVentasInstaladas(fechaInicio: Date, fechaFin: Date): Observable<any[]> {

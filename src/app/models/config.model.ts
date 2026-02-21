@@ -6,16 +6,15 @@ export interface SistemaConfig {
   apiUrl: string;
   authUser: string;
   authPass: string;
-  /** Ruta relativa al apiUrl, ej: reportGeneral.php?op=getPrimaryData */
+  /** Ruta relativa al apiUrl, ej: reportGeneral.php?op=getTvReportById */
   firstEndpointPath: string;
 }
 
-/** Data primaria devuelta por el primer endpoint (sede, meta, usuarios, salas) */
+/** Data primaria devuelta por getTvReportById: meta + ids de usuarios y salas */
 export interface PrimaryData {
-  sede?: any;
-  meta?: any;
-  usuarios: Array<{ id: number | string; [key: string]: any }>;
-  salas: Array<{ id: number | string; [key: string]: any }>;
+  meta?: number | string | null;
+  usuarios: number[];
+  salas: number[];
 }
 
 /** Payload del formulario de configuración inicial */

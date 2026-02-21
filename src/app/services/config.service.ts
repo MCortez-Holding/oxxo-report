@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import {
   PrimaryData,
   SistemaConfig,
@@ -16,28 +16,28 @@ const SISTEMAS: SistemaType[] = ['mcortez', 'telecom', 'konectar', 'comunica'];
  */
 const SISTEMAS_CONFIG: Record<SistemaType, SistemaConfig> = {
   mcortez: {
-    apiUrl: 'https://zeus.m-cortez.com/api',
+    apiUrl: 'https://m-cortez.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getPrimaryData'
+    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
   },
   telecom: {
-    apiUrl: 'https://zeus.m-cortez.com/api',
+    apiUrl: 'https://romy.telecombpo.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getPrimaryData'
+    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
   },
   konectar: {
-    apiUrl: 'https://zeus.m-cortez.com/api',
+    apiUrl: 'https://ares.m-cortez.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getPrimaryData'
+    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
   },
   comunica: {
     apiUrl: 'https://zeus.m-cortez.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getPrimaryData'
+    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
   }
 };
 
@@ -69,27 +69,35 @@ export class ConfigService {
   }
 
   /** Observable de la data primaria (sede, meta, usuarios, salas). */
-  getPrimaryData$(): Observable<PrimaryData | null> {
+  getTvReportById$(): Observable<PrimaryData | null> {
     return this.primaryData$.asObservable();
   }
 
   /** Valor actual de la data primaria. */
-  getPrimaryData(): PrimaryData | null {
+  getTvReportById(): PrimaryData | null {
     return this.primaryData$.value;
   }
 
-  /** IDs de usuarios para enviar al endpoint de reportes (ej. tableReportDayReportTv). */
+  /** IDs de usuarios para enviar al endpoint (id_usuarios). */
   getIdUsers(): string {
     const data = this.primaryData$.value;
     if (!data?.usuarios?.length) return '';
-    return data.usuarios.map(u => String(u.id)).join(',');
+    return data.usuarios.map(u => String(u)).join(',');
   }
 
-  /** IDs de salas para enviar al endpoint de reportes. */
+  /** IDs de salas para enviar al endpoint (id_salas). */
   getIdSalas(): string {
     const data = this.primaryData$.value;
     if (!data?.salas?.length) return '';
-    return data.salas.map(s => String(s.id)).join(',');
+    return data.salas.map(s => String(s)).join(',');
+  }
+
+  /** Meta (ej. para ventas objetivo en reporte por asesor). */
+  getMeta(): number {
+    const data = this.primaryData$.value;
+    const m = data?.meta;
+    if (m == null || m === '') return 0;
+    return typeof m === 'number' ? m : parseInt(String(m), 10) || 0;
   }
 
   /** Indica si ya hay data primaria cargada (sesión configurada). */
@@ -99,7 +107,7 @@ export class ConfigService {
 
   /**
    * Envía el formulario: aplica la config del sistema, llama al primer endpoint
-   * y guarda la data primaria en el store.
+   * con id_tv_report y guarda meta, usuarios y salas en el store.
    */
   submitConfig(payload: ConfigFormPayload): Observable<PrimaryData> {
     const config = this.getConfigForSystem(payload.sistema);
@@ -108,8 +116,7 @@ export class ConfigService {
 
     const url = `${config.apiUrl}/${config.firstEndpointPath.replace(/^\//, '')}`;
     const body = new URLSearchParams({
-      sistema: payload.sistema,
-      identificador: String(payload.identificador)
+      id_tv_report: String(payload.identificador)
     }).toString();
 
     const headers = new HttpHeaders({
@@ -117,15 +124,40 @@ export class ConfigService {
       Authorization: 'Basic ' + btoa(`${config.authUser}:${config.authPass}`)
     });
 
-    return this.http.post<PrimaryData>(url, body, { headers }).pipe(
-      tap(data => {
+    interface GetTvReportResponse {
+      status?: boolean;
+      meta?: number | string | null;
+      usuarios?: number[] | null;
+      salas?: number[] | null;
+      usuarios_ids?: number[] | string | null;
+      salas_ids?: number[] | string | null;
+    }
+
+    /** Convierte valor de usuarios/salas a number[] (array, string "4,15" o null). */
+    const toIdsArray = (val: number[] | string | null | undefined): number[] => {
+      if (val == null) return [];
+      if (Array.isArray(val)) return val.map(n => Number(n)).filter(n => !isNaN(n));
+      const s = String(val).trim();
+      if (!s) return [];
+      return s.split(',').map(x => parseInt(x.trim(), 10)).filter(n => !isNaN(n));
+    };
+
+    return this.http.post<GetTvReportResponse | null>(url, body, { headers }).pipe(
+      map((data: GetTvReportResponse | null): PrimaryData => {
+        if (data == null) {
+          const fallback: PrimaryData = { meta: null, usuarios: [], salas: [] };
+          this.primaryData$.next(fallback);
+          return fallback;
+        }
+        const usuarios = toIdsArray(data.usuarios ?? data.usuarios_ids);
+        const salas = toIdsArray(data.salas ?? data.salas_ids);
         const normalized: PrimaryData = {
-          sede: data.sede,
-          meta: data.meta,
-          usuarios: Array.isArray(data.usuarios) ? data.usuarios : [],
-          salas: Array.isArray(data.salas) ? data.salas : []
+          meta: data.meta ?? null,
+          usuarios,
+          salas
         };
         this.primaryData$.next(normalized);
+        return normalized;
       })
     );
   }

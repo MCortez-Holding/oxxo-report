@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ConfigService } from '../services/config.service';
 import { VentasService } from '../services/ventas.service';
 
 @Component({
@@ -16,7 +17,10 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   private previousVentas: any[] = [];
   countdown: string = '02:00'; // Formato MM:SS
   updateFrequency: number = 120; // Tiempo en segundos (2 minutos)
-  constructor(private ventasService: VentasService) {}
+  constructor(
+    private ventasService: VentasService,
+    private configService: ConfigService
+  ) {}
 
   ngOnInit(): void {
     this.obtenerVentas();
@@ -162,18 +166,12 @@ obtenerVentas() {
   const hoy = new Date();
 
   this.ventasService.getVentas(hoy, hoy).subscribe({
-    next: (data: any) => {
-      console.log('Respuesta completa:', data);
-
-      let ventas = data.datos;
-
+    next: (data: { datos?: any[] }) => {
+      const ventas = (data.datos ?? []).slice();
       ventas.sort((a: any, b: any) => Number(b.total) - Number(a.total));
-
-      // Comparar con los datos anteriores
       if (JSON.stringify(this.ventas) !== JSON.stringify(ventas)) {
         this.previousVentas = [...this.ventas];
         this.ventas = ventas;
-        console.log('Datos actualizados (ordenados):', ventas);
       }
     },
     error: (err) => {
@@ -208,7 +206,8 @@ get ventasInstaladas(): number {
   return this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0);
 }
 get ventasFaltantes(): number {
-  return 1200 -(this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0));
+  const meta = this.configService.getMeta();
+  return Math.max(0, meta - this.ventasInstaladas);
 }
 
   // Método para verificar si una fila es nueva

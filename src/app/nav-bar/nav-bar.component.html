@@ -17,7 +17,10 @@
           </a>
         </li>
       </ul>
-      <div class="d-flex align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-outline-light btn-sm" (click)="salir()" title="Salir y elegir otra empresa / TV">
+          <i class="fas fa-sign-out-alt me-1"></i> Salir
+        </button>
         <span class="navbar-text me-3 d-none d-lg-block">
           <i class="fas fa-clock me-1"></i>
           <span class="live-time">{{ currentTime | date:'HH:mm:ss' }}</span>

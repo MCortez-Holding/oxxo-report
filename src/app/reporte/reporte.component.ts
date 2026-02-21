@@ -281,21 +281,25 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
     }
 
     this.ventasService.getVentas(fechaInicio, fechaFin).subscribe({
-        next: (data: any) => {
-            if (JSON.stringify(this.ventas) !== JSON.stringify(data.ventas)) {
+        next: (data: { datos?: any[] }) => {
+            const raw = data.datos ?? [];
+            const mapped = raw.map((item: any) => ({
+                advisor_name: item.asesor,
+                sales_attended: Number(item.atendida ?? 0),
+                number_sales: Number(item.total ?? 0)
+            }));
+            const sorted = mapped.sort((a: any, b: any) => {
+                if (b.sales_attended !== a.sales_attended) {
+                    return b.sales_attended - a.sales_attended;
+                }
+                const efectividadA = a.number_sales ? a.sales_attended / a.number_sales : 0;
+                const efectividadB = b.number_sales ? b.sales_attended / b.number_sales : 0;
+                return efectividadB - efectividadA;
+            });
+            if (JSON.stringify(this.ventas) !== JSON.stringify(sorted)) {
                 this.previousVentas = [...this.ventas];
-                // Ordenar por sales_attended de mayor a menor
-this.ventas = data.ventas.sort((a: any, b: any) => {
-    if (b.sales_attended !== a.sales_attended) {
-        return b.sales_attended - a.sales_attended; // Prioridad: ventas instaladas
-    } else {
-        const efectividadA = a.sales_attended / a.number_sales;
-        const efectividadB = b.sales_attended / b.number_sales;
-        return efectividadB - efectividadA; // Segundo criterio: efectividad
-    }
-});
+                this.ventas = sorted;
                 setTimeout(() => this.createMainChart(), 0);
-                console.log('Datos actualizados:', data);
             }
         },
         error: (err) => {
