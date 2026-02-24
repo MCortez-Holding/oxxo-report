@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import {
   PrimaryData,
   SistemaConfig,
@@ -111,8 +112,6 @@ export class ConfigService {
    */
   submitConfig(payload: ConfigFormPayload): Observable<PrimaryData> {
     const config = this.getConfigForSystem(payload.sistema);
-    this.currentConfig = config;
-    this.currentPayload = payload;
 
     const url = `${config.apiUrl}/${config.firstEndpointPath.replace(/^\//, '')}`;
     const body = new URLSearchParams({
@@ -150,12 +149,12 @@ export class ConfigService {
       return s.split(',').map(x => parseInt(x.trim(), 10)).filter(n => !isNaN(n));
     };
 
+    const notConfiguredMessage = 'No existe un reporte configurado para este identificador. Solo puede ingresar con un reporte configurado.';
+
     return this.http.post<GetTvReportResponse | null>(url, body, { headers }).pipe(
-      map((data: GetTvReportResponse | null): PrimaryData => {
+      switchMap((data: GetTvReportResponse | null) => {
         if (data == null) {
-          const fallback: PrimaryData = { meta: null, usuarios: [], salas: [] };
-          this.primaryData$.next(fallback);
-          return fallback;
+          return throwError(() => new Error(notConfiguredMessage));
         }
         const raw = data.datos ?? data;
         const usuarios = toIdsArray(raw.usuarios ?? (raw as any).usuarios_ids);
@@ -165,8 +164,13 @@ export class ConfigService {
           usuarios,
           salas
         };
+        if (usuarios.length === 0 && salas.length === 0) {
+          return throwError(() => new Error(notConfiguredMessage));
+        }
+        this.currentConfig = config;
+        this.currentPayload = payload;
         this.primaryData$.next(normalized);
-        return normalized;
+        return of(normalized);
       })
     );
   }
