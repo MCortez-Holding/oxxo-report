@@ -44,7 +44,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.configService.getTvReportById$().subscribe(() => {
+    this.configService.getByIdTvFilter$().subscribe(() => {
       this.adIndex = 0;
       this.startAdLoop();
     });

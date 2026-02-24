@@ -12,7 +12,7 @@ export class ReporteComponent implements AfterViewInit, OnInit{
     @ViewChild('particlesCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('mainChartCanvas', { static: false }) mainChartCanvas!: ElementRef<HTMLCanvasElement>;
   
-  rangoSeleccionado: string = 'hoy'; // Valor por defecto
+  rangoSeleccionado: string = 'mes'; // Valor por defecto: Este mes
   ventas: any[] = [];
   private updateInterval: any;
   private countdownInterval: any;
@@ -244,25 +244,32 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
  obtenerVentas() {
     const hoy = new Date();
     let fechaInicio: Date;
-    let fechaFin: Date = new Date(hoy); // Por defecto, fecha fin es hoy
+    let fechaFin: Date;
 
-    switch(this.rangoSeleccionado) {
-        case 'hoy':
-            fechaInicio = new Date(hoy);
-            break;
-        case 'semana':
-            fechaInicio = new Date(hoy);
-            fechaInicio.setDate(hoy.getDate() - hoy.getDay()); // Primer día de la semana (domingo)
-            break;
-        case 'mes':
-            fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-            break;
-        case 'todo':
-            // Puedes establecer una fecha muy antigua o null según tu API
-            fechaInicio = new Date(0); // 1/1/1970
-            break;
-        default:
-            fechaInicio = new Date(hoy);
+    switch (this.rangoSeleccionado) {
+      case 'hoy':
+        fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        fechaFin = new Date(fechaInicio);
+        break;
+      case 'semana':
+        // Primer día de la semana (domingo)
+        fechaInicio = new Date(hoy);
+        fechaInicio.setDate(hoy.getDate() - hoy.getDay());
+        // Último día de la semana (sábado)
+        fechaFin = new Date(fechaInicio);
+        fechaFin.setDate(fechaFin.getDate() + 6);
+        break;
+      case 'mes':
+        fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+        break;
+      case 'todo':
+        fechaInicio = new Date(0);
+        fechaFin = new Date(hoy);
+        break;
+      default:
+        fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        fechaFin = new Date(fechaInicio);
     }
 
     const año = hoy.getFullYear();
@@ -270,7 +277,7 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
     const fechaIniMes = new Date(año, mes, 1);
     const fechaFinMes = new Date(año, mes + 1, 0);
 
-    this.ventasService.getVentasInstaladas(fechaIniMes, fechaFinMes).subscribe({
+    this.ventasService.getVentasInstaladas(fechaInicio, fechaFin).subscribe({
         next: (data: { datos?: any[] }) => {
             const raw = data.datos ?? [];
             const mapped = raw.map((item: any) => ({

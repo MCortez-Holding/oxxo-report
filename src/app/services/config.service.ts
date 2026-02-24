@@ -19,25 +19,25 @@ const SISTEMAS_CONFIG: Record<SistemaType, SistemaConfig> = {
     apiUrl: 'https://m-cortez.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
+    firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
   },
   telecom: {
     apiUrl: 'https://romy.telecombpo.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
+    firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
   },
   konectar: {
     apiUrl: 'https://ares.m-cortez.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
+    firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
   },
   comunica: {
     apiUrl: 'https://zeus.m-cortez.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
-    firstEndpointPath: 'reportGeneral.php?op=getTvReportById'
+    firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
   }
 };
 
@@ -69,12 +69,12 @@ export class ConfigService {
   }
 
   /** Observable de la data primaria (sede, meta, usuarios, salas). */
-  getTvReportById$(): Observable<PrimaryData | null> {
+  getByIdTvFilter$(): Observable<PrimaryData | null> {
     return this.primaryData$.asObservable();
   }
 
   /** Valor actual de la data primaria. */
-  getTvReportById(): PrimaryData | null {
+  getByIdTvFilter(): PrimaryData | null {
     return this.primaryData$.value;
   }
 

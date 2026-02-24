@@ -87,4 +87,28 @@ export class VentasService {
       headers: this.getAuthHeaders()
     });
   }
+
+  /**
+   * Número total de instaladas: getNumberInstaladasTvFilter.
+   * Mismos parámetros que tableReportInstaladasTvFilter: fechaIni, fechaFin, id_usuarios, id_salas.
+   * Solo se debe llamar cuando se está en REPORTE POR ASESOR.
+   * Respuesta: { instaladas_totales: number } (o objeto que contenga instaladas_totales).
+   */
+  getNumberInstaladasTvFilter(fechaInicio: Date, fechaFin: Date): Observable<{ instaladas_totales: number }> {
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    const idUsers = this.configService.getIdUsers();
+    const idSalas = this.configService.getIdSalas();
+
+    const formData = new FormData();
+    formData.append('fechaIni', formatDate(fechaInicio));
+    formData.append('fechaFin', formatDate(fechaFin));
+    formData.append('id_usuarios', idUsers);
+    formData.append('id_salas', idSalas);
+
+    const url = `${this.getBaseUrl()}/reportGeneral.php?op=getNumberInstaladasTvFilter`;
+
+    return this.http.post<{ instaladas_totales: number }>(url, formData, {
+      headers: this.getAuthHeaders()
+    });
+  }
 }

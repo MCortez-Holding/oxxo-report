@@ -11,7 +11,8 @@ import { VentasService } from '../services/ventas.service';
 export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('particlesCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   ventas: any[] = [];
-  instaladas: any[] = [];
+  /** Número total de instaladas desde getNumberInstaladasTvFilter (solo se actualiza en REPORTE POR ASESOR). */
+  instaladasTotales: number = 0;
   private updateInterval: any;
   private countdownInterval: any;
   private previousVentas: any[] = [];
@@ -24,13 +25,13 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.obtenerVentas();
+    this.obtenerNumeroInstaladas();
     this.startCountdown();
-    this.obtenerVentasIntaladas();
-    // Configurar intervalo para actualizar cada 2 minutos (120000 ms)
+    // Solo 2 endpoints en REPORTE POR ASESOR: tableReportDayTvFilter + getNumberInstaladasTvFilter
     this.updateInterval = setInterval(() => {
       this.obtenerVentas();
+      this.obtenerNumeroInstaladas();
       this.resetCountdown();
-      this.obtenerVentasIntaladas();
     }, this.updateFrequency * 1000);
   }
 
@@ -179,38 +180,26 @@ obtenerVentas() {
     }
   });
 }
-obtenerVentasIntaladas() {
+/** getNumberInstaladasTvFilter: actualiza la meta con instaladas_totales (mismos params que tableReportInstaladasTvFilter). */
+  obtenerNumeroInstaladas(): void {
     const hoy = new Date();
-    const año = hoy.getFullYear();
-    const mes = hoy.getMonth();
-    const fechaIni = new Date(año, mes, 1);
-    const fechaFin = new Date(año, mes + 1, 0);
-
-    this.ventasService.getVentasInstaladas(fechaIni, fechaFin).subscribe({
-      next: (data: { datos?: any[] }) => {
-        const raw = data.datos ?? [];
-        const ventasMapeadas = raw.map((item: any) => ({
-          vintaladas: parseInt(item.instaladas ?? item.vintaladas ?? 0, 10)
-        }));
-        ventasMapeadas.sort((a: any, b: any) => {
-          return b.vintaladas - a.vintaladas;
-        });
-        if (JSON.stringify(this.instaladas) !== JSON.stringify(ventasMapeadas)) {
-          this.instaladas = ventasMapeadas;
-        }
+    this.ventasService.getNumberInstaladasTvFilter(hoy, hoy).subscribe({
+      next: (data: any) => {
+        const total = Number(data?.instaladas_totales ?? data?.datos?.instaladas_totales ?? 0);
+        this.instaladasTotales = total;
       },
       error: (err) => {
-        console.error('Error al obtener ventas:', err);
+        console.error('Error al obtener número de instaladas:', err);
       }
     });
   }
 
-get meta(): number {
-  return this.configService.getMeta();
-}
-get ventasInstaladas(): number {
-  return this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0);
-}
+  get meta(): number {
+    return this.configService.getMeta();
+  }
+  get ventasInstaladas(): number {
+    return this.instaladasTotales;
+  }
 get ventasFaltantes(): number {
   return Math.max(0, this.meta - this.ventasInstaladas);
 }

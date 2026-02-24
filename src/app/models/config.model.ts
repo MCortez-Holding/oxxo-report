@@ -6,11 +6,11 @@ export interface SistemaConfig {
   apiUrl: string;
   authUser: string;
   authPass: string;
-  /** Ruta relativa al apiUrl, ej: reportGeneral.php?op=getTvReportById */
+  /** Ruta relativa al apiUrl, ej: reportGeneral.php?op=getByIdTvFilter */
   firstEndpointPath: string;
 }
 
-/** Data primaria devuelta por getTvReportById: meta + ids de usuarios y salas */
+/** Data primaria devuelta por getByIdTvFilter: meta + ids de usuarios y salas */
 export interface PrimaryData {
   meta?: number | string | null;
   usuarios: number[];
