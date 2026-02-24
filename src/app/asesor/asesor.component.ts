@@ -180,10 +180,12 @@ obtenerVentas() {
     }
   });
 }
-/** getNumberInstaladasTvFilter: actualiza la meta con instaladas_totales (mismos params que tableReportInstaladasTvFilter). */
+/** getNumberInstaladasTvFilter: actualiza la meta con instaladas_totales (rango: primer día del mes hasta último día del mes). */
   obtenerNumeroInstaladas(): void {
     const hoy = new Date();
-    this.ventasService.getNumberInstaladasTvFilter(hoy, hoy).subscribe({
+    const fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+    this.ventasService.getNumberInstaladasTvFilter(fechaInicio, fechaFin).subscribe({
       next: (data: any) => {
         const total = Number(data?.instaladas_totales ?? data?.datos?.instaladas_totales ?? 0);
         this.instaladasTotales = total;
