@@ -1,0 +1,57 @@
+<div class="landing-wrapper">
+  <div class="landing-card">
+    <h1 class="landing-title">Configuración del sistema</h1>
+    <p class="landing-subtitle">Selecciona el sistema e ingresa el identificador para ver los reportes.</p>
+
+    <form (ngSubmit)="onSubmit()" class="landing-form">
+      <div class="form-group">
+        <label for="sistema">Sistema</label>
+        <select
+          id="sistema"
+          name="sistema"
+          [(ngModel)]="sistema"
+          class="form-control form-control-lg landing-select"
+          required
+        >
+          <option value="mcortez">Mcortez</option>
+          <option value="telecom">Telecom</option>
+          <option value="konectar">Konectar</option>
+          <option value="comunica">Comunica</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="identificador">Identificador</label>
+        <input
+          id="identificador"
+          name="identificador"
+          type="number"
+          min="1"
+          [(ngModel)]="identificador"
+          class="form-control form-control-lg landing-input"
+          placeholder="Ej: 10"
+          required
+        />
+      </div>
+
+      <p class="landing-hint">
+        También puedes usar la URL: <code>?sistema=telecom&amp;id=10</code> (opcional: <code>&amp;auto=1</code> para entrar directo).
+      </p>
+
+      <div class="landing-actions">
+        <button
+          type="submit"
+          class="btn btn-primary btn-landing"
+          [disabled]="loading || !identificadorValid"
+        >
+          <span *ngIf="!loading">Entrar a reportes</span>
+          <span *ngIf="loading">Cargando…</span>
+        </button>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger landing-error" role="alert">
+        {{ error }}
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { ConfigService } from '../services/config.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -7,14 +9,26 @@ import { Component } from '@angular/core';
   styleUrl: './nav-bar.component.css'
 })
 export class NavBarComponent {
-currentTime: Date = new Date();
+  currentTime: Date = new Date();
 
-  constructor() {}
+  constructor(
+    private configService: ConfigService,
+    private router: Router
+  ) {}
+
+  get isConfigPage(): boolean {
+    const url = this.router.url.split('?')[0];
+    return url === '/' || url === '';
+  }
 
   ngOnInit(): void {
-    // Actualizar la hora cada segundo
     setInterval(() => {
       this.currentTime = new Date();
     }, 1000);
+  }
+
+  salir(): void {
+    this.configService.clearConfig();
+    this.router.navigate(['/']);
   }
 }

@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ConfigService } from '../services/config.service';
 import { VentasService } from '../services/ventas.service';
 
 @Component({
@@ -10,23 +11,27 @@ import { VentasService } from '../services/ventas.service';
 export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('particlesCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   ventas: any[] = [];
-  instaladas: any[] = [];
+  /** Número total de instaladas desde getNumberInstaladasTvFilter (solo se actualiza en REPORTE POR ASESOR). */
+  instaladasTotales: number = 0;
   private updateInterval: any;
   private countdownInterval: any;
   private previousVentas: any[] = [];
   countdown: string = '02:00'; // Formato MM:SS
   updateFrequency: number = 120; // Tiempo en segundos (2 minutos)
-  constructor(private ventasService: VentasService) {}
+  constructor(
+    private ventasService: VentasService,
+    private configService: ConfigService
+  ) {}
 
   ngOnInit(): void {
     this.obtenerVentas();
+    this.obtenerNumeroInstaladas();
     this.startCountdown();
-    this.obtenerVentasIntaladas();
-    // Configurar intervalo para actualizar cada 2 minutos (120000 ms)
+    // Solo 2 endpoints en REPORTE POR ASESOR: tableReportDayTvFilter + getNumberInstaladasTvFilter
     this.updateInterval = setInterval(() => {
       this.obtenerVentas();
+      this.obtenerNumeroInstaladas();
       this.resetCountdown();
-      this.obtenerVentasIntaladas();
     }, this.updateFrequency * 1000);
   }
 
@@ -162,18 +167,12 @@ obtenerVentas() {
   const hoy = new Date();
 
   this.ventasService.getVentas(hoy, hoy).subscribe({
-    next: (data: any) => {
-      console.log('Respuesta completa:', data);
-
-      let ventas = data.datos;
-
+    next: (data: { datos?: any[] }) => {
+      const ventas = (data.datos ?? []).slice();
       ventas.sort((a: any, b: any) => Number(b.total) - Number(a.total));
-
-      // Comparar con los datos anteriores
       if (JSON.stringify(this.ventas) !== JSON.stringify(ventas)) {
         this.previousVentas = [...this.ventas];
         this.ventas = ventas;
-        console.log('Datos actualizados (ordenados):', ventas);
       }
     },
     error: (err) => {
@@ -181,34 +180,30 @@ obtenerVentas() {
     }
   });
 }
-obtenerVentasIntaladas() {
+/** getNumberInstaladasTvFilter: actualiza la meta con instaladas_totales (rango: primer día del mes hasta último día del mes). */
+  obtenerNumeroInstaladas(): void {
     const hoy = new Date();
-    const fechaIni = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-    const fechaFin = hoy;
-
-    this.ventasService.getVentasInstaladas(fechaIni, fechaFin).subscribe({
+    const fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+    this.ventasService.getNumberInstaladasTvFilter(fechaInicio, fechaFin).subscribe({
       next: (data: any) => {
-        const ventasMapeadas = data.datos.map((item: any) => ({
-          vintaladas: parseInt(item.vintaladas)
-        }));
-        ventasMapeadas.sort((a: any, b: any) => {
-          return b.vintaladas - a.vintaladas;
-        });
-        if (JSON.stringify(this.instaladas) !== JSON.stringify(ventasMapeadas)) {
-          this.instaladas = ventasMapeadas;
-        }
+        const total = Number(data?.instaladas_totales ?? data?.datos?.instaladas_totales ?? 0);
+        this.instaladasTotales = total;
       },
       error: (err) => {
-        console.error('Error al obtener ventas:', err);
+        console.error('Error al obtener número de instaladas:', err);
       }
     });
   }
 
-get ventasInstaladas(): number {
-  return this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0);
-}
+  get meta(): number {
+    return this.configService.getMeta();
+  }
+  get ventasInstaladas(): number {
+    return this.instaladasTotales;
+  }
 get ventasFaltantes(): number {
-  return 1200 -(this.instaladas.reduce((sum, v) => sum + v.vintaladas, 0));
+  return Math.max(0, this.meta - this.ventasInstaladas);
 }
 
   // Método para verificar si una fila es nueva
