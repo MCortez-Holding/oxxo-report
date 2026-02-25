@@ -20,6 +20,14 @@ export class VentasService {
     return `${año}-${mes}-${dia}`;
   }
 
+  /** Formato YYYY-MM-DD en hora local (evita que toISOString cambie el día por UTC). */
+  private formatDateLocal(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   private getAuthHeaders(): HttpHeaders {
     const config = this.configService.getCurrentConfig();
     if (!config) {
@@ -46,13 +54,12 @@ export class VentasService {
       throw new Error('No hay configuración de sistema. Debes completar el formulario de configuración.');
     }
 
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
     const idUsers = this.configService.getIdUsers();
     const idSalas = this.configService.getIdSalas();
 
     const body = new HttpParams()
-      .set('fechaIni', formatDate(fechaInicio))
-      .set('fechaFin', formatDate(fechaFin))
+      .set('fechaIni', this.formatDateLocal(fechaInicio))
+      .set('fechaFin', this.formatDateLocal(fechaFin))
       .set('id_usuarios', idUsers)
       .set('id_salas', idSalas);
 
@@ -71,13 +78,12 @@ export class VentasService {
    * Respuesta: { datos: [{ sala, asesor, instaladas, programadas, total, efectividad, totalugis }] }
    */
   getVentasInstaladas(fechaInicio: Date, fechaFin: Date): Observable<{ datos: any[] }> {
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
     const idUsers = this.configService.getIdUsers();
     const idSalas = this.configService.getIdSalas();
 
     const formData = new FormData();
-    formData.append('fechaIni', formatDate(fechaInicio));
-    formData.append('fechaFin', formatDate(fechaFin));
+    formData.append('fechaIni', this.formatDateLocal(fechaInicio));
+    formData.append('fechaFin', this.formatDateLocal(fechaFin));
     formData.append('id_usuarios', idUsers);
     formData.append('id_salas', idSalas);
 
@@ -95,13 +101,12 @@ export class VentasService {
    * Respuesta: { instaladas_totales: number } (o objeto que contenga instaladas_totales).
    */
   getNumberInstaladasTvFilter(fechaInicio: Date, fechaFin: Date): Observable<{ instaladas_totales: number }> {
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
     const idUsers = this.configService.getIdUsers();
     const idSalas = this.configService.getIdSalas();
 
     const formData = new FormData();
-    formData.append('fechaIni', formatDate(fechaInicio));
-    formData.append('fechaFin', formatDate(fechaFin));
+    formData.append('fechaIni', this.formatDateLocal(fechaInicio));
+    formData.append('fechaFin', this.formatDateLocal(fechaFin));
     formData.append('id_usuarios', idUsers);
     formData.append('id_salas', idSalas);
 
