@@ -23,7 +23,7 @@ const SISTEMAS_CONFIG: Record<SistemaType, SistemaConfig> = {
     firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
   },
   telecom: {
-    apiUrl: 'https://romy.telecombpo.com/api',
+    apiUrl: 'https://telecomromy.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
     firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
