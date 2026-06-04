@@ -14,7 +14,7 @@ const ADS_BY_SYSTEM: Record<SistemaType, string[]> = {
     // Añade aquí las imágenes de Konectar
   ],
   comunica: [
-    'assets/35.jpeg', 'assets/36.jpeg', 'assets/37.jpeg', 'assets/38.jpeg', 'assets/39.jpeg', 'assets/40.jpeg', 'assets/41.jpeg'
+    'assets/42.jpeg', 'assets/43.jpeg', 'assets/44.jpeg', 'assets/45.jpeg', 'assets/46.jpeg', 'assets/47.jpeg', 'assets/48.jpeg', 'assets/49.jpeg'
   ]
 };
 
