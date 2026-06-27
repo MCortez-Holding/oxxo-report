@@ -1,5 +1,5 @@
 /** Sistemas disponibles en el selector del formulario de configuración */
-export type SistemaType = 'mcortez' | 'telecom' | 'konectar' | 'comunica';
+export type SistemaType = 'mcortez' | 'telecom' | 'konectar' | 'comunica' | 'optimus';
 
 /** Configuración por sistema: API, credenciales y endpoint de data primaria */
 export interface SistemaConfig {

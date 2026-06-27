@@ -9,7 +9,7 @@ import {
   ConfigFormPayload
 } from '../models/config.model';
 
-const SISTEMAS: SistemaType[] = ['mcortez', 'telecom', 'konectar', 'comunica'];
+const SISTEMAS: SistemaType[] = ['mcortez', 'telecom', 'konectar', 'comunica', 'optimus'];
 
 /**
  * Configuración predefinida por sistema (URL API, credenciales, endpoint de data primaria).
@@ -36,6 +36,12 @@ const SISTEMAS_CONFIG: Record<SistemaType, SistemaConfig> = {
   },
   comunica: {
     apiUrl: 'https://zeus.m-cortez.com/api',
+    authUser: 'kevinrrdev',
+    authPass: 'KD3z*1112099xD',
+    firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
+  },
+  optimus: {
+    apiUrl: 'https://optimus.holdingbpo.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
     firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'

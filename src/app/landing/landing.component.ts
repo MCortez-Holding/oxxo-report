@@ -31,7 +31,7 @@ export class LandingComponent implements OnInit {
       const sistemaParam = (params['sistema'] || '').toLowerCase();
       const idParam = params['id'] ?? params['identificador'];
 
-      const validSystems: SistemaType[] = ['mcortez', 'telecom', 'konectar', 'comunica'];
+      const validSystems: SistemaType[] = ['mcortez', 'telecom', 'konectar', 'comunica', 'optimus'];
       if (validSystems.includes(sistemaParam as SistemaType)) {
         this.sistema = sistemaParam as SistemaType;
       }
