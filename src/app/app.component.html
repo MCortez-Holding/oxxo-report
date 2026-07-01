@@ -1,7 +1,40 @@
 <app-nav-bar></app-nav-bar>
-<router-outlet></router-outlet>
 
-<div class="ad-overlay" *ngIf="showAd">
+<!-- Contenedor principal con escalado dinámico por hardware -->
+<div [class.reporte-wrapper]="isTvMode"
+     [style.transform]="isTvMode ? 'translate(-50%, 0) scale(' + currentScale + ')' : 'none'" 
+     [style.transform-origin]="isTvMode ? 'top center' : 'unset'" 
+     [style.width]="isTvMode ? (100 / currentScale) + 'vw' : 'auto'" 
+     [style.height]="isTvMode ? (100 / currentScale) + 'vh' : 'auto'">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- Panel flotante de navegación para Modo TV -->
+<div class="tv-floating-controls" *ngIf="isTvMode">
+  <button type="button" class="btn-tv-control" (click)="toggleView('general')" [class.active]="currentPath === '/reporte-general'">
+    <i class="bi bi-pie-chart-fill"></i> General
+  </button>
+  <button type="button" class="btn-tv-control" (click)="toggleView('asesor')" [class.active]="currentPath === '/reporte-asesor'">
+    <i class="bi bi-people-fill"></i> Asesor
+  </button>
+
+  <!-- Controles de Zoom para ajustar la pantalla a cualquier Smart TV -->
+  <div class="tv-zoom-group">
+    <button type="button" class="btn-tv-zoom" (click)="adjustZoom(-0.1)" title="Reducir tamaño (zoom -)">
+      <i class="bi bi-zoom-out"></i>
+    </button>
+    <span class="zoom-value">{{ (currentScale * 100) | number:'1.0-0' }}%</span>
+    <button type="button" class="btn-tv-zoom" (click)="adjustZoom(0.1)" title="Aumentar tamaño (zoom +)">
+      <i class="bi bi-zoom-in"></i>
+    </button>
+  </div>
+
+  <button type="button" class="btn-tv-control btn-exit-tv" (click)="exitTvMode()">
+    <i class="bi bi-fullscreen-exit"></i> Salir TV
+  </button>
+</div>
+
+<!-- Superposición de Anuncio (Publicidad) -->
 <div class="ad-overlay" *ngIf="showAd">
   <div class="ad-container">
     <img *ngIf="!isVideo(currentAd)" [src]="currentAd" class="animated-ad-img" />
@@ -9,4 +42,3 @@
   </div>
 </div>
 
-</div>

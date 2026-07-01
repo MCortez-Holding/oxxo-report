@@ -1,4 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { SistemaType } from './models/config.model';
 import { ConfigService } from './services/config.service';
 
@@ -36,7 +38,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   private adIndex = 0;
   private adInterval: any;
 
-  constructor(private configService: ConfigService) {}
+  isTvMode = false;
+  currentPath = '';
+  currentScale = 1.4;
+
+  constructor(
+    private configService: ConfigService,
+    private router: Router
+  ) {}
 
   /** Array de anuncios del sistema actual (según configuración). */
   get currentAds(): string[] {
@@ -46,11 +55,77 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.detectTvMode();
+    this.currentPath = this.router.url.split('?')[0];
+
+    // Detectar cambios de ruta y actualizar el path activo y modo TV
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.currentPath = this.router.url.split('?')[0];
+      this.detectTvMode();
+    });
+
     this.configService.getByIdTvFilter$().subscribe(() => {
       this.adIndex = 0;
       this.startAdLoop();
     });
   }
+
+  detectTvMode(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    this.isTvMode = urlParams.get('view') === 'tv';
+    if (this.isTvMode) {
+      document.body.classList.add('modo-tv');
+
+      // Cargar el nivel de zoom desde la URL o localStorage
+      const zoomParam = urlParams.get('zoom');
+      if (zoomParam) {
+        const parsed = parseFloat(zoomParam);
+        if (!isNaN(parsed) && parsed >= 0.5 && parsed <= 3.0) {
+          this.currentScale = parsed;
+          localStorage.setItem('tv_zoom', String(parsed));
+        }
+      } else {
+        const savedZoom = localStorage.getItem('tv_zoom');
+        if (savedZoom) {
+          this.currentScale = parseFloat(savedZoom) || 1.4;
+        } else {
+          this.currentScale = 1.4;
+        }
+      }
+    } else {
+      document.body.classList.remove('modo-tv');
+    }
+  }
+
+  adjustZoom(delta: number): void {
+    let newScale = parseFloat((this.currentScale + delta).toFixed(2));
+    // Limitar el zoom entre 0.5 (50%) y 3.0 (300%)
+    if (newScale < 0.5) newScale = 0.5;
+    if (newScale > 3.0) newScale = 3.0;
+
+    this.currentScale = newScale;
+    localStorage.setItem('tv_zoom', String(newScale));
+
+    // Reflejar en la URL de forma suave
+    this.router.navigate([], {
+      queryParams: { zoom: newScale },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  toggleView(view: 'general' | 'asesor'): void {
+    const path = view === 'general' ? '/reporte-general' : '/reporte-asesor';
+    this.router.navigate([path], { queryParams: { view: 'tv' }, queryParamsHandling: 'merge' });
+  }
+
+  exitTvMode(): void {
+    this.isTvMode = false;
+    document.body.classList.remove('modo-tv');
+    this.router.navigate([this.currentPath], { queryParams: { view: null }, queryParamsHandling: 'merge' });
+  }
+
 
 ngAfterViewInit(): void {
   // Espera a que el usuario haga click para poder reproducir

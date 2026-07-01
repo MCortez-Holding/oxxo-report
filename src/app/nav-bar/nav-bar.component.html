@@ -18,6 +18,9 @@
         </li>
       </ul>
       <div class="d-flex align-items-center gap-2">
+        <button *ngIf="!isConfigPage" type="button" class="btn btn-outline-info btn-sm" (click)="entrarModoTV()" title="Entrar a Modo TV (Optimizado para Pantallas grandes)">
+          <i class="bi bi-tv me-1"></i> Modo TV
+        </button>
         <button *ngIf="!isConfigPage" type="button" class="btn btn-outline-light btn-sm" (click)="salir()" title="Salir y elegir otra empresa / TV">
           <i class="fas fa-sign-out-alt me-1"></i> Salir
         </button>

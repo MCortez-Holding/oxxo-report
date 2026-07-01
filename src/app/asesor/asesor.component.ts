@@ -18,6 +18,8 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   private previousVentas: any[] = [];
   countdown: string = '02:00'; // Formato MM:SS
   updateFrequency: number = 120; // Tiempo en segundos (2 minutos)
+  private destroyed = false;
+  private resizeListener!: () => void;
   constructor(
     private ventasService: VentasService,
     private configService: ConfigService
@@ -36,6 +38,10 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
    ngOnDestroy() {
+    this.destroyed = true;
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
+    }
     // Limpiar los intervalos cuando el componente se destruya
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -87,6 +93,8 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     resizeCanvas();
+    this.resizeListener = resizeCanvas;
+    window.addEventListener('resize', this.resizeListener);
 
     class Particle {
       x: number;
@@ -126,6 +134,7 @@ ctx.fillStyle = '#FF0000';
     let lastFrame = 0;
 
     const animate = (time: number) => {
+      if (this.destroyed) return;
       if (time - lastFrame < 33) {
         requestAnimationFrame(animate);
         return;
@@ -160,7 +169,6 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
     };
 
     requestAnimationFrame(animate);
-    window.addEventListener('resize', resizeCanvas);
   }
 
 obtenerVentas() {

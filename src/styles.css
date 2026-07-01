@@ -1,10 +1,159 @@
- body {
-      font-family: 'Montserrat', sans-serif;
-      margin: 0;
-      padding: 10px;
-      height: 100vh;
-      background-color: #f5f7fa;
-    }
-  
-  
-    
+body {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 10px;
+  height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* ==========================================
+   Modo TV - Optimización para Smart TV
+   ========================================== */
+html, body.modo-tv {
+  background-color: #0b111e !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+/* Ocultar elementos innecesarios en TV */
+body.modo-tv app-nav-bar,
+body.modo-tv .navbar,
+body.modo-tv .btn-salir,
+body.modo-tv .navbar-menus {
+  display: none !important;
+}
+
+/* Ajustes de contenedores para Modo TV */
+body.modo-tv .main-container {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+}
+
+body.modo-tv .canvas-background {
+  top: 0 !important;
+  height: 100vh !important;
+}
+
+/* Escalado por hardware para evitar parches y congelamientos */
+body.modo-tv .reporte-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  overflow: hidden !important;
+  box-sizing: border-box;
+
+  /* Aceleración por hardware */
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Panel flotante de controles para Modo TV (Navegación y salida) */
+.tv-floating-controls {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 12px;
+  border-radius: 30px;
+  display: flex;
+  gap: 8px;
+  z-index: 100000; /* Asegura estar sobre todo el contenido */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(235, 31, 31, 0.2);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tv-floating-controls:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(235, 31, 31, 0.4);
+}
+
+.btn-tv-control {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-tv-control i {
+  font-size: 1.1rem;
+}
+
+.btn-tv-control:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-tv-control.active {
+  color: #fff;
+  background: #eb1f1f;
+  box-shadow: 0 2px 10px rgba(235, 31, 31, 0.4);
+}
+
+.btn-tv-control.btn-exit-tv {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #c9d1d9;
+}
+
+.btn-tv-control.btn-exit-tv:hover {
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.15);
+}
+
+/* Controles de Zoom en el panel flotante */
+.tv-zoom-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 6px;
+}
+
+.btn-tv-zoom {
+  background: transparent;
+  border: none;
+  color: #c9d1d9;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-tv-zoom:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.zoom-value {
+  color: #FFD700;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 0.95rem;
+  min-width: 45px;
+  text-align: center;
+}
+
+

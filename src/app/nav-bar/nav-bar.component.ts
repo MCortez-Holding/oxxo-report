@@ -27,6 +27,13 @@ export class NavBarComponent {
     }, 1000);
   }
 
+  entrarModoTV(): void {
+    this.router.navigate([], {
+      queryParams: { view: 'tv' },
+      queryParamsHandling: 'merge'
+    });
+  }
+
   salir(): void {
     this.configService.clearConfig();
     this.router.navigate(['/']);

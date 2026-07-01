@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { VentasService } from '../services/ventas.service';
 
@@ -8,7 +8,7 @@ import { VentasService } from '../services/ventas.service';
   standalone:false,
   styleUrls: ['./reporte.component.css']
 })
-export class ReporteComponent implements AfterViewInit, OnInit{
+export class ReporteComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild('particlesCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('mainChartCanvas', { static: false }) mainChartCanvas!: ElementRef<HTMLCanvasElement>;
   
@@ -20,6 +20,8 @@ export class ReporteComponent implements AfterViewInit, OnInit{
   countdown: string = '02:00';
   updateFrequency: number = 120;
   private mainChart!: Chart;
+  private destroyed = false;
+  private resizeListener!: () => void;
 
   /** Resumen del mes: solo cuando rangoSeleccionado === 'mes' */
   totalVentasMes = 0;
@@ -40,6 +42,10 @@ export class ReporteComponent implements AfterViewInit, OnInit{
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
+    }
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
     }
@@ -159,12 +165,14 @@ export class ReporteComponent implements AfterViewInit, OnInit{
  
      if (!canvas || !ctx) return;
  
-     const resizeCanvas = () => {
-       canvas.width = window.innerWidth;
-       canvas.height = window.innerHeight;
-     };
- 
-     resizeCanvas();
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    this.resizeListener = resizeCanvas;
+    window.addEventListener('resize', this.resizeListener);
  
      class Particle {
        x: number;
@@ -203,12 +211,13 @@ export class ReporteComponent implements AfterViewInit, OnInit{
  
      let lastFrame = 0;
  
-     const animate = (time: number) => {
-       if (time - lastFrame < 33) {
-         requestAnimationFrame(animate);
-         return;
-       }
-       lastFrame = time;
+      const animate = (time: number) => {
+        if (this.destroyed) return;
+        if (time - lastFrame < 33) {
+          requestAnimationFrame(animate);
+          return;
+        }
+        lastFrame = time;
  
        ctx.clearRect(0, 0, canvas.width, canvas.height);
  
@@ -237,9 +246,8 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
        requestAnimationFrame(animate);
      };
  
-     requestAnimationFrame(animate);
-     window.addEventListener('resize', resizeCanvas);
-   }
+      requestAnimationFrame(animate);
+    }
  
  obtenerVentas() {
     const hoy = new Date();
@@ -272,10 +280,7 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
         fechaFin = new Date(fechaInicio);
     }
 
-    const año = hoy.getFullYear();
-    const mes = hoy.getMonth();
-    const fechaIniMes = new Date(año, mes, 1);
-    const fechaFinMes = new Date(año, mes + 1, 0);
+
 
     this.ventasService.getVentasInstaladas(fechaInicio, fechaFin).subscribe({
         next: (data: { datos?: any[] }) => {
