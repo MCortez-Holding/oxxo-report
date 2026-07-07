@@ -214,6 +214,10 @@ get ventasFaltantes(): number {
   return Math.max(0, this.meta - this.ventasInstaladas);
 }
 
+  get totalSubidas(): number {
+    return this.ventas.reduce((sum, venta) => sum + Number(venta.total ?? 0), 0);
+  }
+
   // Método para verificar si una fila es nueva
   isNewRow(index: number): boolean {
     // Si no tenemos datos anteriores, no es nueva
