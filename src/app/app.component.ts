@@ -115,9 +115,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     });
   }
 
-  toggleView(view: 'general' | 'asesor'): void {
-    const path = view === 'general' ? '/reporte-general' : '/reporte-asesor';
-    this.router.navigate([path], { queryParams: { view: 'tv' }, queryParamsHandling: 'merge' });
+  toggleView(view: 'general' | 'asesor' | 'efectividad'): void {
+    const paths = {
+      general: '/reporte-general',
+      asesor: '/reporte-asesor',
+      efectividad: '/tabla-efectividad'
+    };
+    this.router.navigate([paths[view]], { queryParams: { view: 'tv' }, queryParamsHandling: 'merge' });
   }
 
   exitTvMode(): void {

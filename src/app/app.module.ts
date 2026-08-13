@@ -10,6 +10,7 @@ import { AsesorComponent } from './asesor/asesor.component';
 import { LandingComponent } from './landing/landing.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { EfectividadComponent } from './efectividad/efectividad.component';
 
 @NgModule({
     schemas: [NO_ERRORS_SCHEMA],
@@ -18,7 +19,8 @@ import { FormsModule } from '@angular/forms';
     ReporteComponent,
     NavBarComponent,
     AsesorComponent,
-    LandingComponent
+    LandingComponent,
+    EfectividadComponent
   ],
   imports: [
     BrowserModule,

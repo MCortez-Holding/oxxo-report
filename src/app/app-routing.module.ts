@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ReporteComponent } from './reporte/reporte.component';
 import { AsesorComponent } from './asesor/asesor.component';
 import { LandingComponent } from './landing/landing.component';
+import { EfectividadComponent } from './efectividad/efectividad.component';
 import { configLoadedGuard } from './guards/config-loaded.guard';
 
 const routes: Routes = [
@@ -16,6 +17,11 @@ const routes: Routes = [
   {
     path: 'reporte-asesor',
     component: AsesorComponent,
+    canActivate: [configLoadedGuard]
+  },
+  {
+    path: 'tabla-efectividad',
+    component: EfectividadComponent,
     canActivate: [configLoadedGuard]
   }
 ];

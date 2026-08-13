@@ -17,6 +17,9 @@
   <button type="button" class="btn-tv-control" (click)="toggleView('asesor')" [class.active]="currentPath === '/reporte-asesor'">
     <i class="bi bi-people-fill"></i> Asesor
   </button>
+  <button type="button" class="btn-tv-control" (click)="toggleView('efectividad')" [class.active]="currentPath === '/tabla-efectividad'">
+    <i class="bi bi-percent"></i> Efectividad
+  </button>
 
   <!-- Controles de Zoom para ajustar la pantalla a cualquier Smart TV -->
   <div class="tv-zoom-group">

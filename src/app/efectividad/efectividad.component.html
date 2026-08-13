@@ -1,0 +1,65 @@
+<div class="main-container">
+    <canvas #particlesCanvas class="canvas-background"></canvas>
+<center>
+    <div class="container-fluid content-overlay">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="alert alert-info title-box" role="alert">
+                    <h2 class="title-text">
+                        EFECTIVIDAD - {{ mesActualLabel }} - {{ efectividadTotal | number:'1.2-2' }}% - Programadas {{ totalProgramadas | number }} - Instaladas {{ totalInstaladas | number }}
+                    </h2>
+                </div>
+
+                <div class="tablas-grid" *ngIf="filas.length > 0">
+                    <div class="tabla-columna" *ngFor="let columna of columnasTabla">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-glow">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th scope="col">Pos.</th>
+                                        <th scope="col">Asesor</th>
+                                        <th scope="col">Prog.</th>
+                                        <th scope="col">Inst.</th>
+                                        <th scope="col">Efect.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of columna" [ngClass]="{
+                                        'top-1': item.index === 0,
+                                        'top-2': item.index === 1,
+                                        'top-3': item.index === 2,
+                                        'new-row': isNewRow(item.index)
+                                      }">
+                                        <td>
+                                            <span *ngIf="item.index === 0" class="medal-icon gold">🥇</span>
+                                            <span *ngIf="item.index === 1" class="medal-icon silver">🥈</span>
+                                            <span *ngIf="item.index === 2" class="medal-icon bronze">🥉</span>
+                                            <span *ngIf="item.index >= 3">{{ item.index + 1 }}</span>
+                                        </td>
+                                        <td>{{ item.fila.asesor | slice:0:20 }}</td>
+                                        <td>{{ item.fila.programadas }}</td>
+                                        <td>{{ item.fila.instaladas }}</td>
+                                        <td>{{ item.fila.efectividad | number:'1.2-2' }}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" *ngIf="filas.length === 0">
+                    <table class="table table-striped table-glow">
+                        <tbody>
+                            <tr>
+                                <td class="text-center empty-row">Sin datos de efectividad para este mes.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <span class="countdown-timer">{{countdown}}</span>
+    </div>
+</center>
+    <div id="fireEffect" class="fire-effect"></div>
+</div>
