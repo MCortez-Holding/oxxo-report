@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { VentasService } from '../services/ventas.service';
 
@@ -8,11 +8,11 @@ import { VentasService } from '../services/ventas.service';
   standalone:false,
   styleUrls: ['./reporte.component.css']
 })
-export class ReporteComponent implements AfterViewInit, OnInit{
+export class ReporteComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild('particlesCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('mainChartCanvas', { static: false }) mainChartCanvas!: ElementRef<HTMLCanvasElement>;
   
-  rangoSeleccionado: string = 'hoy'; // Valor por defecto
+  rangoSeleccionado: string = 'mes'; // Valor por defecto: Este mes
   ventas: any[] = [];
   private updateInterval: any;
   private countdownInterval: any;
@@ -20,6 +20,13 @@ export class ReporteComponent implements AfterViewInit, OnInit{
   countdown: string = '02:00';
   updateFrequency: number = 120;
   private mainChart!: Chart;
+  private destroyed = false;
+  private resizeListener!: () => void;
+
+  /** Resumen del mes: solo cuando rangoSeleccionado === 'mes' */
+  totalVentasMes = 0;
+  totalProgramadosMes = 0;
+  totalInstaladosMes = 0;
 
   constructor(private ventasService: VentasService) {
     Chart.register(...registerables);
@@ -35,6 +42,10 @@ export class ReporteComponent implements AfterViewInit, OnInit{
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
+    if (this.resizeListener) {
+      window.removeEventListener('resize', this.resizeListener);
+    }
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
     }
@@ -60,19 +71,13 @@ export class ReporteComponent implements AfterViewInit, OnInit{
     const ctx = this.mainChartCanvas.nativeElement.getContext('2d');
     if (!ctx || this.ventas.length === 0) return;
 
-    const ventasOrdenadas = [...this.ventas].sort((a, b) => b.sales_attended - a.sales_attended);
+    const ventasOrdenadas = [...this.ventas].sort((a, b) => b.instaladas - a.instaladas);
 
-    // Calcular efectividad (ventas atendidas / ventas totales * 100)
-    const calcularEfectividad = (attended: number, total: number) => {
-        return total > 0 ? (attended / total) * 100 : 0;
-    };
-
-    // Preparar datos para el gráfico
     const labels = ventasOrdenadas.map(v => v.advisor_name);
     const datasets = [
         {
-            label: 'Efectividad',
-            data: ventasOrdenadas.map(v => calcularEfectividad(v.sales_attended, v.number_sales)),
+            label: 'Instaladas',
+            data: ventasOrdenadas.map(v => v.instaladas),
             backgroundColor: 'rgba(75, 192, 192, 0.7)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1
@@ -97,29 +102,15 @@ export class ReporteComponent implements AfterViewInit, OnInit{
                 },
                 tooltip: {
                     mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        label: (context) => {
-                            // Asegurar que raw es un número
-                            const value = typeof context.raw === 'number' ? context.raw : 0;
-                            return `${context.dataset.label}: ${value.toFixed(2)}%`;
-                        }
-                    }
+                    intersect: false
                 }
             },
             scales: {
                 y: {
-                    max: 100, // Máximo del 100%
-                    min: 0,   // Mínimo del 0%
                     beginAtZero: true,
                     ticks: {
                         color: '#ffffff',
-                        stepSize: 10,
-                        callback: (value) => {
-                            // Asegurar que value es un número
-                            const numericValue = typeof value === 'number' ? value : 0;
-                            return `${numericValue}%`;
-                        }
+                        stepSize: 1
                     },
                     grid: {
                         color: 'rgba(255, 255, 255, 0.1)'
@@ -174,12 +165,14 @@ export class ReporteComponent implements AfterViewInit, OnInit{
  
      if (!canvas || !ctx) return;
  
-     const resizeCanvas = () => {
-       canvas.width = window.innerWidth;
-       canvas.height = window.innerHeight;
-     };
- 
-     resizeCanvas();
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    this.resizeListener = resizeCanvas;
+    window.addEventListener('resize', this.resizeListener);
  
      class Particle {
        x: number;
@@ -218,12 +211,13 @@ export class ReporteComponent implements AfterViewInit, OnInit{
  
      let lastFrame = 0;
  
-     const animate = (time: number) => {
-       if (time - lastFrame < 33) {
-         requestAnimationFrame(animate);
-         return;
-       }
-       lastFrame = time;
+      const animate = (time: number) => {
+        if (this.destroyed) return;
+        if (time - lastFrame < 33) {
+          requestAnimationFrame(animate);
+          return;
+        }
+        lastFrame = time;
  
        ctx.clearRect(0, 0, canvas.width, canvas.height);
  
@@ -252,50 +246,69 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
        requestAnimationFrame(animate);
      };
  
-     requestAnimationFrame(animate);
-     window.addEventListener('resize', resizeCanvas);
-   }
+      requestAnimationFrame(animate);
+    }
  
  obtenerVentas() {
     const hoy = new Date();
     let fechaInicio: Date;
-    let fechaFin: Date = new Date(hoy); // Por defecto, fecha fin es hoy
+    let fechaFin: Date;
 
-    switch(this.rangoSeleccionado) {
-        case 'hoy':
-            fechaInicio = new Date(hoy);
-            break;
-        case 'semana':
-            fechaInicio = new Date(hoy);
-            fechaInicio.setDate(hoy.getDate() - hoy.getDay()); // Primer día de la semana (domingo)
-            break;
-        case 'mes':
-            fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-            break;
-        case 'todo':
-            // Puedes establecer una fecha muy antigua o null según tu API
-            fechaInicio = new Date(0); // 1/1/1970
-            break;
-        default:
-            fechaInicio = new Date(hoy);
+    switch (this.rangoSeleccionado) {
+      case 'hoy':
+        fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        fechaFin = new Date(fechaInicio);
+        break;
+      case 'semana':
+        // Primer día de la semana (domingo)
+        fechaInicio = new Date(hoy);
+        fechaInicio.setDate(hoy.getDate() - hoy.getDay());
+        // Último día de la semana (sábado)
+        fechaFin = new Date(fechaInicio);
+        fechaFin.setDate(fechaFin.getDate() + 6);
+        break;
+      case 'mes':
+        fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        fechaFin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+        break;
+      case 'todo':
+        fechaInicio = new Date(0);
+        fechaFin = new Date(hoy);
+        break;
+      default:
+        fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        fechaFin = new Date(fechaInicio);
     }
 
-    this.ventasService.getVentas(fechaInicio, fechaFin).subscribe({
-        next: (data: any) => {
-            if (JSON.stringify(this.ventas) !== JSON.stringify(data.ventas)) {
+
+
+    this.ventasService.getVentasInstaladas(fechaInicio, fechaFin).subscribe({
+        next: (data: { datos?: any[] }) => {
+            const raw = data.datos ?? [];
+            const mapped = raw.map((item: any) => ({
+                sala: item.sala ?? '',
+                advisor_name: item.asesor ?? '',
+                instaladas: Number(item.instaladas ?? 0),
+                programadas: Number(item.programadas ?? 0),
+                total: Number(item.total ?? 0),
+                efectividad: Number(item.efectividad ?? 0),
+                totalugis: Number(item.totalugis ?? 0)
+            }));
+            const sorted = mapped.sort((a: any, b: any) => {
+                if (b.instaladas !== a.instaladas) return b.instaladas - a.instaladas;
+                return b.efectividad - a.efectividad;
+            });
+            if (this.rangoSeleccionado === 'mes') {
+                this.totalVentasMes = raw.reduce((s, i) => s + Number(i.total ?? 0), 0);
+                this.totalProgramadosMes = raw.reduce((s, i) => s + Number(i.programadas ?? 0), 0);
+                this.totalInstaladosMes = raw.reduce((s, i) => s + Number(i.instaladas ?? 0), 0);
+            } else {
+                this.totalVentasMes = this.totalProgramadosMes = this.totalInstaladosMes = 0;
+            }
+            if (JSON.stringify(this.ventas) !== JSON.stringify(sorted)) {
                 this.previousVentas = [...this.ventas];
-                // Ordenar por sales_attended de mayor a menor
-this.ventas = data.ventas.sort((a: any, b: any) => {
-    if (b.sales_attended !== a.sales_attended) {
-        return b.sales_attended - a.sales_attended; // Prioridad: ventas instaladas
-    } else {
-        const efectividadA = a.sales_attended / a.number_sales;
-        const efectividadB = b.sales_attended / b.number_sales;
-        return efectividadB - efectividadA; // Segundo criterio: efectividad
-    }
-});
+                this.ventas = sorted;
                 setTimeout(() => this.createMainChart(), 0);
-                console.log('Datos actualizados:', data);
             }
         },
         error: (err) => {

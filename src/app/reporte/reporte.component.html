@@ -8,16 +8,21 @@
                     <h2 class="title-text">🏆 REPORTE GENERAL (instaladas)🏆</h2>
                 </div>
 
+                <div *ngIf="rangoSeleccionado === 'mes'" class="alert alert-info title-box-success mb-3" role="alert">
+                    <h2 class="title-text">
+                        📊 Resumen del mes: Programados {{ totalProgramadosMes | number }} — Instalados {{ totalInstaladosMes | number }}
+                    </h2>
+                </div>
+
                 <div class="dashboard-container">
                     <!-- Columna izquierda - Tabla de asesores -->
                     <!-- Modifica la tabla en tu HTML -->
                     <div class="sales-column">
                         <div class="mb-3">
                             <select class="form-select" [(ngModel)]="rangoSeleccionado" (change)="cambiarRango()">
-                                <option value="hoy">Hoy</option>
+                                <option value="mes" selected>Este mes</option>
                                 <option value="semana">Esta semana</option>
-                                <option value="mes">Este mes</option>
-                                <option value="todo">Todo</option>
+                                <option value="hoy">Hoy</option>
                             </select>
                         </div>
                         <div class="table-responsive compact-table">
@@ -25,7 +30,8 @@
                                 <thead class="table-header">
                                     <tr>
                                         <th scope="col" class="col-asesor">Asesor</th>
-                                        <th scope="col" class="col-ventas">Ventas</th>
+                                        <th scope="col" class="col-ventas">Programadas</th>
+                                        <th scope="col" class="col-ventas">Atendidas</th>
                                         <th scope="col" class="col-programadas">Efectividad</th>
                                     </tr>
                                 </thead>
@@ -42,9 +48,9 @@
                                             <span *ngIf="i === 2" class="medal-icon bronze">🥉</span>
                                             {{venta.advisor_name}}
                                         </td>
-                                        <td class="col-ventas">{{venta.sales_attended}}</td>
-                                        <td class="col-programadas">{{ (venta.sales_attended / venta.number_sales * 100)
-                                            | number:'1.2-2' }}%</td>
+                                        <td class="col-ventas">{{venta.programadas}}</td>
+                                        <td class="col-ventas">{{venta.instaladas}}</td>
+                                        <td class="col-programadas">{{ venta.efectividad | number:'1.2-2' }}%</td>
                                     </tr>
                                 </tbody>
                             </table>

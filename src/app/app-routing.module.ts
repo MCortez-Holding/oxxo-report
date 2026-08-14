@@ -2,10 +2,28 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ReporteComponent } from './reporte/reporte.component';
 import { AsesorComponent } from './asesor/asesor.component';
+import { LandingComponent } from './landing/landing.component';
+import { EfectividadComponent } from './efectividad/efectividad.component';
+import { configLoadedGuard } from './guards/config-loaded.guard';
 
 const routes: Routes = [
-  { path: 'reporte-general', component: ReporteComponent, pathMatch: 'full' },
-  { path: 'reporte-asesor', component: AsesorComponent}
+  { path: '', component: LandingComponent, pathMatch: 'full' },
+  {
+    path: 'reporte-general',
+    component: ReporteComponent,
+    pathMatch: 'full',
+    canActivate: [configLoadedGuard]
+  },
+  {
+    path: 'reporte-asesor',
+    component: AsesorComponent,
+    canActivate: [configLoadedGuard]
+  },
+  {
+    path: 'tabla-efectividad',
+    component: EfectividadComponent,
+    canActivate: [configLoadedGuard]
+  }
 ];
 
 @NgModule({

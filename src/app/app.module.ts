@@ -7,8 +7,10 @@ import { ReporteComponent } from './reporte/reporte.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { CommonModule } from '@angular/common';
 import { AsesorComponent } from './asesor/asesor.component';
-import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
+import { LandingComponent } from './landing/landing.component';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { EfectividadComponent } from './efectividad/efectividad.component';
 
 @NgModule({
     schemas: [NO_ERRORS_SCHEMA],
@@ -16,7 +18,9 @@ import { FormsModule } from '@angular/forms';
     AppComponent,
     ReporteComponent,
     NavBarComponent,
-    AsesorComponent
+    AsesorComponent,
+    LandingComponent,
+    EfectividadComponent
   ],
   imports: [
     BrowserModule,
