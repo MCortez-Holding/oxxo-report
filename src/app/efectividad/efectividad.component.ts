@@ -90,8 +90,8 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const mapped = raw.map((item: any) => this.mapFila(item));
         const sorted = mapped.sort((a: any, b: any) => {
-          if (b.efectividad !== a.efectividad) return b.efectividad - a.efectividad;
-          return b.instaladas - a.instaladas;
+          if (b.instaladas !== a.instaladas) return b.instaladas - a.instaladas;
+          return b.efectividad - a.efectividad;
         });
 
         this.totalProgramadas = mapped.reduce((s: number, i: any) => s + i.programadas, 0);
