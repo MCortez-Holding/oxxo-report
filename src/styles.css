@@ -56,43 +56,44 @@ body.modo-tv .reporte-wrapper {
 /* Panel flotante de controles para Modo TV (Navegación y salida) */
 .tv-floating-controls {
   position: fixed;
-  bottom: 25px;
-  right: 25px;
+  bottom: 16px;
+  right: 16px;
   background: rgba(22, 27, 34, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 8px 12px;
-  border-radius: 30px;
+  padding: 4px 8px;
+  border-radius: 22px;
   display: flex;
-  gap: 8px;
-  z-index: 100000; /* Asegura estar sobre todo el contenido */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(235, 31, 31, 0.2);
+  align-items: center;
+  gap: 4px;
+  z-index: 100000;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 10px rgba(235, 31, 31, 0.15);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .tv-floating-controls:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(235, 31, 31, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(235, 31, 31, 0.25);
 }
 
 .btn-tv-control {
   background: transparent;
   border: none;
   color: #8b949e;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.95rem;
+  padding: 3px 9px;
+  border-radius: 14px;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   transition: all 0.2s ease;
 }
 
 .btn-tv-control i {
-  font-size: 1.1rem;
+  font-size: 0.85rem;
 }
 
 .btn-tv-control:hover {
@@ -103,7 +104,7 @@ body.modo-tv .reporte-wrapper {
 .btn-tv-control.active {
   color: #fff;
   background: #eb1f1f;
-  box-shadow: 0 2px 10px rgba(235, 31, 31, 0.4);
+  box-shadow: 0 1px 6px rgba(235, 31, 31, 0.4);
 }
 
 .btn-tv-control.btn-exit-tv {
@@ -122,24 +123,25 @@ body.modo-tv .reporte-wrapper {
   display: flex;
   align-items: center;
   background: rgba(0, 0, 0, 0.3);
-  padding: 2px 8px;
-  border-radius: 20px;
+  padding: 1px 5px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  gap: 6px;
+  gap: 2px;
 }
 
 .btn-tv-zoom {
   background: transparent;
   border: none;
   color: #c9d1d9;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 0.8rem;
 }
 
 .btn-tv-zoom:hover {
@@ -154,10 +156,10 @@ body.modo-tv .reporte-wrapper {
 
 .btn-tv-zoom.btn-tv-fuente {
   width: auto;
-  min-width: 32px;
-  padding: 0 6px;
-  border-radius: 14px;
-  font-size: 0.9rem;
+  min-width: 24px;
+  padding: 0 4px;
+  border-radius: 10px;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
@@ -165,8 +167,8 @@ body.modo-tv .reporte-wrapper {
   color: #FFD700;
   font-family: 'Courier New', monospace;
   font-weight: bold;
-  font-size: 0.95rem;
-  min-width: 45px;
+  font-size: 0.75rem;
+  min-width: 34px;
   text-align: center;
 }
 
