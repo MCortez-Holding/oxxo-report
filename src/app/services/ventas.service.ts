@@ -116,4 +116,29 @@ export class VentasService {
       headers: this.getAuthHeaders()
     });
   }
+
+  /**
+   * Tabla de efectividad: tableEffectivenessUserFilter.
+   * Mismos parámetros que los reportes anteriores: fechaIni, fechaFin, id_usuarios, id_salas.
+   * Respuesta: { datos: [...] } (asesor, sala, efectividad y métricas asociadas).
+   */
+  getTablaEfectividad(fechaInicio: Date, fechaFin: Date): Observable<{ datos: any[] }> {
+    const idUsers = this.configService.getIdUsers();
+    const idSalas = this.configService.getIdSalas();
+
+    const body = new HttpParams()
+      .set('fechaIni', this.formatDateLocal(fechaInicio))
+      .set('fechaFin', this.formatDateLocal(fechaFin))
+      .set('id_usuarios', idUsers)
+      .set('id_salas', idSalas);
+
+    let headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
+    const auth = this.getAuthHeaders();
+    if (auth.has('Authorization')) {
+      headers = headers.set('Authorization', auth.get('Authorization')!);
+    }
+
+    const url = `${this.getBaseUrl()}/reportGeneral.php?op=tableEffectivenessUserFilter`;
+    return this.http.post<{ datos: any[] }>(url, body.toString(), { headers });
+  }
 }

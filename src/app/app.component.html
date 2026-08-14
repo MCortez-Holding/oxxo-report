@@ -10,16 +10,32 @@
 </div>
 
 <!-- Panel flotante de navegación para Modo TV -->
-<div class="tv-floating-controls" *ngIf="isTvMode">
-  <button type="button" class="btn-tv-control" (click)="toggleView('general')" [class.active]="currentPath === '/reporte-general'">
-    <i class="bi bi-pie-chart-fill"></i> General
-  </button>
-  <button type="button" class="btn-tv-control" (click)="toggleView('asesor')" [class.active]="currentPath === '/reporte-asesor'">
-    <i class="bi bi-people-fill"></i> Asesor
-  </button>
+<div class="tv-floating-controls" *ngIf="isTvMode || esEfectividad">
+  <ng-container *ngIf="isTvMode">
+    <button type="button" class="btn-tv-control" (click)="toggleView('general')" [class.active]="currentPath === '/reporte-general'">
+      <i class="bi bi-pie-chart-fill"></i> General
+    </button>
+    <button type="button" class="btn-tv-control" (click)="toggleView('asesor')" [class.active]="currentPath === '/reporte-asesor'">
+      <i class="bi bi-people-fill"></i> Asesor
+    </button>
+    <button type="button" class="btn-tv-control" (click)="toggleView('efectividad')" [class.active]="currentPath === '/tabla-efectividad'">
+      <i class="bi bi-percent"></i> Efectividad
+    </button>
+  </ng-container>
 
-  <!-- Controles de Zoom para ajustar la pantalla a cualquier Smart TV -->
-  <div class="tv-zoom-group">
+  <div class="tv-zoom-group" *ngIf="esEfectividad" title="Filas por columna">
+    <button type="button" class="btn-tv-zoom" (click)="efectividadUi.ajustarFilas(-1)" [disabled]="!efectividadUi.puedeQuitarFila" title="Menos filas por columna">−</button>
+    <span class="zoom-value">{{ efectividadUi.filasPorColumna }}</span>
+    <button type="button" class="btn-tv-zoom" (click)="efectividadUi.ajustarFilas(1)" [disabled]="!efectividadUi.puedeAgregarFila" title="Más filas por columna">+</button>
+  </div>
+
+  <div class="tv-zoom-group" *ngIf="esEfectividad" title="Tamaño de letra">
+    <button type="button" class="btn-tv-zoom btn-tv-fuente" (click)="efectividadUi.ajustarFuente(-efectividadUi.fuentePaso)" [disabled]="!efectividadUi.puedeReducirFuente" title="Letra más pequeña">A−</button>
+    <span class="zoom-value">{{ efectividadUi.tamanoFuente }}%</span>
+    <button type="button" class="btn-tv-zoom btn-tv-fuente" (click)="efectividadUi.ajustarFuente(efectividadUi.fuentePaso)" [disabled]="!efectividadUi.puedeAumentarFuente" title="Letra más grande">A+</button>
+  </div>
+
+  <div class="tv-zoom-group" *ngIf="isTvMode">
     <button type="button" class="btn-tv-zoom" (click)="adjustZoom(-0.1)" title="Reducir tamaño (zoom -)">
       <i class="bi bi-zoom-out"></i>
     </button>
@@ -29,7 +45,7 @@
     </button>
   </div>
 
-  <button type="button" class="btn-tv-control btn-exit-tv" (click)="exitTvMode()">
+  <button *ngIf="isTvMode" type="button" class="btn-tv-control btn-exit-tv" (click)="exitTvMode()">
     <i class="bi bi-fullscreen-exit"></i> Salir TV
   </button>
 </div>
