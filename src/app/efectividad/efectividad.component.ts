@@ -1,5 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { VentasService } from '../services/ventas.service';
+import { EfectividadUiService } from '../services/efectividad-ui.service';
 
 @Component({
   selector: 'app-efectividad',
@@ -11,10 +13,12 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('particlesCanvas', { static: false }) canvasRef!: ElementRef<HTMLCanvasElement>;
 
   filas: any[] = [];
+  columnas: { fila: any; index: number }[][] = [];
   efectividadTotal = 0;
   totalProgramadas = 0;
   totalInstaladas = 0;
   mesActualLabel = '';
+  private uiSub?: Subscription;
 
   private updateInterval: any;
   private countdownInterval: any;
@@ -24,10 +28,22 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroyed = false;
   private resizeListener!: () => void;
 
-  constructor(private ventasService: VentasService) {}
+  constructor(
+    private ventasService: VentasService,
+    private efectividadUi: EfectividadUiService
+  ) {}
+
+  get filasPorColumna(): number {
+    return this.efectividadUi.filasPorColumna;
+  }
+
+  get tamanoFuente(): number {
+    return this.efectividadUi.tamanoFuente;
+  }
 
   ngOnInit(): void {
     this.mesActualLabel = this.obtenerNombreMesActual();
+    this.uiSub = this.efectividadUi.filasPorColumna$.subscribe(() => this.actualizarColumnas());
     this.obtenerEfectividad();
     this.startCountdown();
     this.updateInterval = setInterval(() => {
@@ -38,6 +54,7 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.destroyed = true;
+    this.uiSub?.unsubscribe();
     if (this.resizeListener) {
       window.removeEventListener('resize', this.resizeListener);
     }
@@ -69,13 +86,7 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.ventasService.getTablaEfectividad(fechaInicio, fechaFin).subscribe({
       next: (data: any) => {
-        const raw = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.datos)
-            ? data.datos
-            : Array.isArray(data?.data)
-              ? data.data
-              : [];
+        const raw = this.extraerLista(data);
 
         const mapped = raw.map((item: any) => this.mapFila(item));
         const sorted = mapped.sort((a: any, b: any) => {
@@ -86,7 +97,7 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
         this.totalProgramadas = mapped.reduce((s: number, i: any) => s + i.programadas, 0);
         this.totalInstaladas = mapped.reduce((s: number, i: any) => s + i.instaladas, 0);
 
-        const rawTotal = data?.efectividad_total ?? data?.total_efectividad;
+        const rawTotal = data?.efectividad_total ?? data?.total_efectividad ?? data?.datos?.efectividad_total;
         const totalApi = rawTotal != null && rawTotal !== '' ? Number(rawTotal) : NaN;
 
         if (!Number.isNaN(totalApi)) {
@@ -103,6 +114,8 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
           this.previousFilas = [...this.filas];
           this.filas = sorted;
         }
+        this.efectividadUi.setTotalFilas(this.filas.length);
+        this.actualizarColumnas();
       },
       error: (err) => {
         console.error('Error al obtener tabla de efectividad:', err);
@@ -110,8 +123,24 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private extraerLista(data: any): any[] {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== 'object') return [];
+
+    const directo = data.datos ?? data.data ?? data.result ?? data.rows ?? data.lista;
+    if (Array.isArray(directo)) return directo;
+    if (directo && typeof directo === 'object') {
+      if (Array.isArray(directo.datos)) return directo.datos;
+      const vals = Object.values(directo).filter(v => v && typeof v === 'object' && !Array.isArray(v));
+      if (vals.length > 0) return vals;
+    }
+    return [];
+  }
+
   private mapFila(item: any) {
-    const programadas = Number(item.programadas ?? item.vprogramadas ?? item.programados ?? 0);
+    const programadas = Number(
+      item.programadas ?? item.vprogramadas ?? item.programados ?? item.total ?? 0
+    );
     const instaladas = Number(item.instaladas ?? item.atendida ?? item.atendidas ?? 0);
     const efectividadRaw = Number(
       item.efectividad ?? item.efectividad_total ?? item.porcentaje ?? NaN
@@ -126,7 +155,7 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
       asesor: item.asesor ?? item.advisor_name ?? item.nombre ?? item.usuario ?? '',
       programadas,
       instaladas,
-      total: Number(item.total ?? 0),
+      total: programadas,
       efectividad,
       totalugis: Number(item.totalugis ?? 0)
     };
@@ -138,17 +167,29 @@ export class EfectividadComponent implements OnInit, AfterViewInit, OnDestroy {
     return JSON.stringify(this.filas[index]) !== JSON.stringify(this.previousFilas[index]);
   }
 
-  /** Parte las filas en 3 columnas: se llena de arriba a abajo y sigue a la derecha. */
-  get columnasTabla(): { fila: any; index: number }[][] {
+  /** Parte las filas: cada columna (salvo la última) tiene filasPorColumna; el resto sigue a la derecha. */
+  private actualizarColumnas(): void {
     const total = this.filas.length;
-    if (total === 0) return [];
-    const porColumna = Math.ceil(total / 3);
-    const columnas: { fila: any; index: number }[][] = [[], [], []];
-    this.filas.forEach((fila, index) => {
-      const col = Math.min(Math.floor(index / porColumna), 2);
-      columnas[col].push({ fila, index });
-    });
-    return columnas.filter(col => col.length > 0);
+    if (total === 0) {
+      this.columnas = [];
+      return;
+    }
+    const n = Math.max(1, Number(this.efectividadUi.filasPorColumna) || 1);
+    const columnas: { fila: any; index: number }[][] = [];
+    let i = 0;
+    while (i < total) {
+      const remaining = total - i;
+      const esUltimaColumna = columnas.length >= 2;
+      const take = esUltimaColumna ? remaining : Math.min(n, remaining);
+      if (take < 1) break;
+      const col: { fila: any; index: number }[] = [];
+      for (let k = 0; k < take; k++) {
+        col.push({ fila: this.filas[i], index: i });
+        i++;
+      }
+      columnas.push(col);
+    }
+    this.columnas = columnas;
   }
 
   private startCountdown() {

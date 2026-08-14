@@ -126,16 +126,19 @@ export class VentasService {
     const idUsers = this.configService.getIdUsers();
     const idSalas = this.configService.getIdSalas();
 
-    const formData = new FormData();
-    formData.append('fechaIni', this.formatDateLocal(fechaInicio));
-    formData.append('fechaFin', this.formatDateLocal(fechaFin));
-    formData.append('id_usuarios', idUsers);
-    formData.append('id_salas', idSalas);
+    const body = new HttpParams()
+      .set('fechaIni', this.formatDateLocal(fechaInicio))
+      .set('fechaFin', this.formatDateLocal(fechaFin))
+      .set('id_usuarios', idUsers)
+      .set('id_salas', idSalas);
+
+    let headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
+    const auth = this.getAuthHeaders();
+    if (auth.has('Authorization')) {
+      headers = headers.set('Authorization', auth.get('Authorization')!);
+    }
 
     const url = `${this.getBaseUrl()}/reportGeneral.php?op=tableEffectivenessUserFilter`;
-
-    return this.http.post<{ datos: any[] }>(url, formData, {
-      headers: this.getAuthHeaders()
-    });
+    return this.http.post<{ datos: any[] }>(url, body.toString(), { headers });
   }
 }

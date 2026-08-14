@@ -3,6 +3,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { SistemaType } from './models/config.model';
 import { ConfigService } from './services/config.service';
+import { EfectividadUiService } from './services/efectividad-ui.service';
 
 /** Anuncios por sistema/empresa. Añade más rutas a cada array según necesites. */
 const ADS_BY_SYSTEM: Record<SistemaType, string[]> = {
@@ -44,7 +45,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   constructor(
     private configService: ConfigService,
-    private router: Router
+    private router: Router,
+    public efectividadUi: EfectividadUiService
   ) {}
 
   /** Array de anuncios del sistema actual (según configuración). */
@@ -70,6 +72,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
       this.adIndex = 0;
       this.startAdLoop();
     });
+  }
+
+  get esEfectividad(): boolean {
+    return this.currentPath === '/tabla-efectividad';
   }
 
   detectTvMode(): void {

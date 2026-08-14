@@ -12,6 +12,7 @@
   position: relative;
   z-index: 1;
   color: white;
+  padding-bottom: 80px;
 }
 
 .title-box-success {
@@ -24,7 +25,6 @@
 
 .tablas-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   align-items: start;
   width: 100%;
@@ -54,7 +54,7 @@
 }
 
 .table-glow tbody tr.top-1 {
-  font-size: 1.05rem;
+  font-size: calc(1.05rem * var(--fuente-scale, 1));
   font-weight: bold;
   border: 3px solid #FFD700;
   background: rgba(255, 215, 0, 0.15);
@@ -63,7 +63,7 @@
 }
 
 .table-glow tbody tr.top-2 {
-  font-size: 1rem;
+  font-size: calc(1rem * var(--fuente-scale, 1));
   font-weight: bold;
   border: 3px solid #C0C0C0;
   background: rgba(192, 192, 192, 0.15);
@@ -72,7 +72,7 @@
 }
 
 .table-glow tbody tr.top-3 {
-  font-size: 0.98rem;
+  font-size: calc(0.98rem * var(--fuente-scale, 1));
   font-weight: bold;
   border: 3px solid #CD7F32;
   background: rgba(205, 127, 50, 0.15);
@@ -105,10 +105,64 @@
   box-shadow: 0 0 15px #1f6febAA;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .title-text {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: calc(1.8rem * var(--fuente-scale, 1));
   font-weight: bold;
+}
+
+.filas-control {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-filas {
+  background: transparent;
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: bold;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.btn-filas:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-filas:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.filas-value {
+  color: #FFD700;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 1.1rem;
+  min-width: 28px;
+  text-align: center;
 }
 
 @keyframes intenseGlow {
@@ -148,7 +202,7 @@
 }
 
 .medal-icon {
-  font-size: 1.5rem;
+  font-size: calc(1.5rem * var(--fuente-scale, 1));
   display: inline-block;
   min-width: 30px;
   text-align: center;
@@ -180,8 +234,8 @@
 
 .table-glow th,
 .table-glow td {
-  padding: 8px 10px;
-  font-size: 0.92rem;
+  padding: calc(8px * var(--fuente-scale, 1)) calc(10px * var(--fuente-scale, 1));
+  font-size: calc(0.92rem * var(--fuente-scale, 1));
 }
 
 .table-glow td:nth-child(2) {
@@ -189,10 +243,21 @@
   padding-right: 12px;
 }
 
-@media (max-width: 1200px) {
-  .tablas-grid {
-    grid-template-columns: 1fr;
-  }
+.barra-inferior {
+  position: fixed;
+  bottom: 20px;
+  left: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 12px;
+  border-radius: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(235, 31, 31, 0.2);
 }
 
 .countdown-timer {
@@ -208,8 +273,48 @@
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
-.empty-row {
-  color: #8b949e;
-  font-style: italic;
-  padding: 1.5rem !important;
+.fuente-control {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 6px;
+}
+
+.btn-fuente {
+  background: transparent;
+  border: none;
+  color: #c9d1d9;
+  min-width: 36px;
+  height: 32px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.btn-fuente:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.btn-fuente:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.fuente-value {
+  color: #FFD700;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 0.95rem;
+  min-width: 48px;
+  text-align: center;
 }

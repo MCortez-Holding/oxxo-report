@@ -1,4 +1,4 @@
-<div class="main-container">
+<div class="main-container" [style.--fuente-scale]="tamanoFuente / 100">
     <canvas #particlesCanvas class="canvas-background"></canvas>
 <center>
     <div class="container-fluid content-overlay">
@@ -10,8 +10,8 @@
                     </h2>
                 </div>
 
-                <div class="tablas-grid" *ngIf="filas.length > 0">
-                    <div class="tabla-columna" *ngFor="let columna of columnasTabla">
+                <div class="tablas-grid" *ngIf="filas.length > 0" [style.grid-template-columns]="'repeat(' + columnas.length + ', minmax(0, 1fr))'">
+                    <div class="tabla-columna" *ngFor="let columna of columnas">
                         <div class="table-responsive">
                             <table class="table table-striped table-glow">
                                 <thead class="table-header">
@@ -45,16 +45,6 @@
                             </table>
                         </div>
                     </div>
-                </div>
-
-                <div class="table-responsive" *ngIf="filas.length === 0">
-                    <table class="table table-striped table-glow">
-                        <tbody>
-                            <tr>
-                                <td class="text-center empty-row">Sin datos de efectividad para este mes.</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>

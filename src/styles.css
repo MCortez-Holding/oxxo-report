@@ -147,6 +147,20 @@ body.modo-tv .reporte-wrapper {
   color: #fff;
 }
 
+.btn-tv-zoom:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.btn-tv-zoom.btn-tv-fuente {
+  width: auto;
+  min-width: 32px;
+  padding: 0 6px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
 .zoom-value {
   color: #FFD700;
   font-family: 'Courier New', monospace;
