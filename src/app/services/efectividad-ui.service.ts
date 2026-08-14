@@ -8,7 +8,7 @@ export class EfectividadUiService {
   readonly fuentePaso = 10;
   private readonly filasKey = 'efectividad_filas_columna';
   private readonly fuenteKey = 'efectividad_tamano_fuente';
-  private readonly fuenteMin = 70;
+  private readonly fuenteMin = 20;
   private readonly fuenteMax = 200;
 
   readonly filasPorColumna$ = new BehaviorSubject<number>(this.leerFilas());
