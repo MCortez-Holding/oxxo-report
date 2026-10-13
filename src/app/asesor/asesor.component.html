@@ -3,8 +3,67 @@
 <center>
     <div class="container-fluid content-overlay">
 
+        <!-- ================= PANEL EN LÍNEA: SELECCIONAR CRM A COMPARAR ================= -->
+        <div class="row justify-content-center my-4" *ngIf="mostrarPanelConfig">
+            <div class="col-xxl-7 col-xl-8 col-lg-9 col-md-11 col-12">
+                <div class="crm-inline-panel">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2" style="border-color: rgba(255,255,255,0.1) !important;">
+                        <span class="inline-panel-title">
+                            <i class="fas fa-columns text-warning me-2"></i> Seleccionar CRM a comparar
+                        </span>
+                        <button type="button" class="btn btn-outline-secondary btn-inline-close" (click)="cerrarPanelConfig()" [disabled]="panelCargando">
+                            <i class="fas fa-times me-1"></i> Cancelar / Cerrar
+                        </button>
+                    </div>
+
+                    <p class="inline-panel-subtitle mb-4">
+                        Selecciona el CRM y el número de Identificador para contrastar ambos reportes en pantalla:
+                    </p>
+
+                    <form (ngSubmit)="confirmarComparacion()" class="row g-3">
+                        <div class="col-md-6 col-12 text-start">
+                            <label for="panelSistema" class="form-label inline-label mb-2">CRM a comparar</label>
+                            <select id="panelSistema" name="panelSistema" [(ngModel)]="modalSistema" class="form-select inline-select" required>
+                                <option *ngFor="let s of sistemasDisponibles" [value]="s.key">
+                                    {{ s.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 col-12 text-start">
+                            <label for="panelIdentificador" class="form-label inline-label mb-2">Identificador de reporte</label>
+                            <input id="panelIdentificador" 
+                                   name="panelIdentificador" 
+                                   type="number" 
+                                   min="1" 
+                                   [(ngModel)]="modalIdentificador" 
+                                   class="form-control inline-input" 
+                                   placeholder="Ej: 10" 
+                                   required />
+                        </div>
+
+                        <div class="col-12 mt-4 d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary btn-inline-cancel px-4" (click)="cerrarPanelConfig()" [disabled]="panelCargando">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-warning btn-inline-submit px-4 font-weight-bold" [disabled]="panelCargando || !modalIdentificador">
+                                <span *ngIf="!panelCargando"><i class="fas fa-check me-1"></i> Iniciar Comparación</span>
+                                <span *ngIf="panelCargando"><i class="fas fa-spinner fa-spin me-1"></i> Conectando...</span>
+                            </button>
+                        </div>
+
+                        <div *ngIf="panelError" class="col-12 mt-3">
+                            <div class="alert alert-danger py-2 px-3 mb-0 inline-error-alert" role="alert">
+                                <i class="fas fa-exclamation-circle me-1"></i> {{ panelError }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- ================= MODO COMPARACIÓN (2 REPORTES LADO A LADO) ================= -->
-        <div class="row g-3 justify-content-center" *ngIf="isComparando">
+        <div class="row g-3 justify-content-center" *ngIf="isComparando && !mostrarPanelConfig">
             <!-- Columna Izquierda: CRM Principal / Actual -->
             <div class="col-lg-6 col-12 comparacion-col">
                 <div class="alert alert-info title-box" role="alert">
@@ -101,7 +160,7 @@
         </div>
 
         <!-- ================= MODO NORMAL (1 SOLO REPORTE) ================= -->
-        <div class="row justify-content-center" *ngIf="!isComparando">
+        <div class="row justify-content-center" *ngIf="!isComparando && !mostrarPanelConfig">
             <div class="col-xxl-10 col-xl-11 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div class="alert alert-info title-box" role="alert">
                     <h2 class="title-text">🏆 REPORTE POR ASESOR - Llevamos {{ totalSubidas }} ventas subidas 🏆</h2>
@@ -146,66 +205,9 @@
             </div>
         </div>
 
-        <span class="countdown-timer">{{countdown}}</span>
+        <span class="countdown-timer" *ngIf="!mostrarPanelConfig">{{countdown}}</span>
     </div>
 </center>
     <div id="fireEffect" class="fire-effect"></div>
 </div>
-
-<!-- ================= MODAL DE SELECCIÓN DE CRM A COMPARAR ================= -->
-<div class="crm-modal-backdrop" *ngIf="mostrarModal" (click)="cerrarModal()"></div>
-<div class="crm-modal-dialog" *ngIf="mostrarModal">
-    <div class="crm-modal-content">
-        <div class="crm-modal-header">
-            <h5 class="crm-modal-title">
-                <i class="fas fa-columns me-2 text-warning"></i> Comparar con otro CRM
-            </h5>
-            <button type="button" class="btn-close-modal" (click)="cerrarModal()" [disabled]="modalCargando">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <form (ngSubmit)="confirmarComparacion()">
-            <div class="crm-modal-body">
-                <p class="modal-description">
-                    Selecciona el CRM y el Identificador con el que deseas contrastar el reporte actual en pantalla dividida:
-                </p>
-
-                <div class="mb-3">
-                    <label for="modalSistema" class="form-label modal-label">CRM a comparar</label>
-                    <select id="modalSistema" name="modalSistema" [(ngModel)]="modalSistema" class="form-select modal-select" required>
-                        <option *ngFor="let s of sistemasDisponibles" [value]="s.key">
-                            {{ s.label }}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="modalIdentificador" class="form-label modal-label">Identificador de reporte</label>
-                    <input id="modalIdentificador" 
-                           name="modalIdentificador" 
-                           type="number" 
-                           min="1" 
-                           [(ngModel)]="modalIdentificador" 
-                           class="form-control modal-input" 
-                           placeholder="Ej: 10" 
-                           required />
-                </div>
-
-                <div *ngIf="modalError" class="alert alert-danger modal-error-alert py-2 mb-0" role="alert">
-                    <i class="fas fa-exclamation-circle me-1"></i> {{ modalError }}
-                </div>
-            </div>
-
-            <div class="crm-modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarModal()" [disabled]="modalCargando">
-                    Cancelar
-                </button>
-                <button type="submit" class="btn btn-warning btn-sm font-weight-bold" [disabled]="modalCargando || !modalIdentificador">
-                    <span *ngIf="!modalCargando"><i class="fas fa-check me-1"></i> Iniciar Comparación</span>
-                    <span *ngIf="modalCargando"><i class="fas fa-spinner fa-spin me-1"></i> Conectando...</span>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+
