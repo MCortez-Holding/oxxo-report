@@ -21,6 +21,9 @@ const ADS_BY_SYSTEM: Record<SistemaType, string[]> = {
   ],
   optimus: [
     // De momento no tendrá imagen
+  ],
+  eros: [
+    // De momento no tendrá imagen
   ]
 };
 

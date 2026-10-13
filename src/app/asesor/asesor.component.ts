@@ -1,5 +1,8 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { SistemaConfig, SistemaType } from '../models/config.model';
 import { ConfigService } from '../services/config.service';
+import { ComparacionCrmData, ComparacionService } from '../services/comparacion.service';
 import { VentasService } from '../services/ventas.service';
 
 @Component({
@@ -20,28 +23,78 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   updateFrequency: number = 120; // Tiempo en segundos (2 minutos)
   private destroyed = false;
   private resizeListener!: () => void;
+
+  // ===== Estado de Comparación =====
+  isComparando = false;
+  comparacionData?: ComparacionCrmData;
+  mostrarModal = false;
+  modalSistema: SistemaType = 'telecom';
+  modalIdentificador: number | null = null;
+  modalCargando = false;
+  modalError: string | null = null;
+
+  // Datos del CRM Comparado (Derecha)
+  ventasComp: any[] = [];
+  instaladasTotalesComp: number = 0;
+  metaComp: number = 0;
+  sistemaCompNombre: string = '';
+  identificadorComp: number | null = null;
+  private compConfig?: SistemaConfig;
+  private compUsuariosStr = '';
+  private compSalasStr = '';
+  private previousVentasComp: any[] = [];
+
+  private comparacionSub?: Subscription;
+  private abrirModalSub?: Subscription;
+
   constructor(
     private ventasService: VentasService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private comparacionService: ComparacionService
   ) {}
 
   ngOnInit(): void {
     this.obtenerVentas();
     this.obtenerNumeroInstaladas();
     this.startCountdown();
-    // Solo 2 endpoints en REPORTE POR ASESOR: tableReportDayTvFilter + getNumberInstaladasTvFilter
+
     this.updateInterval = setInterval(() => {
       this.obtenerVentas();
       this.obtenerNumeroInstaladas();
+      if (this.isComparando) {
+        this.obtenerDatosComparacion();
+      }
       this.resetCountdown();
     }, this.updateFrequency * 1000);
+
+    // Escuchar cambios de estado de comparación
+    this.comparacionSub = this.comparacionService.estado$.subscribe(state => {
+      this.isComparando = state.activo;
+      this.comparacionData = state;
+      if (!state.activo) {
+        this.ventasComp = [];
+        this.instaladasTotalesComp = 0;
+        this.metaComp = 0;
+        this.compConfig = undefined;
+      }
+    });
+
+    // Escuchar solicitud de apertura de modal desde el header
+    this.abrirModalSub = this.comparacionService.abrirModal$.subscribe(abrir => {
+      if (abrir) {
+        this.abrirModalComparar();
+      }
+    });
   }
+
 
    ngOnDestroy() {
     this.destroyed = true;
     if (this.resizeListener) {
       window.removeEventListener('resize', this.resizeListener);
     }
+    this.comparacionSub?.unsubscribe();
+    this.abrirModalSub?.unsubscribe();
     // Limpiar los intervalos cuando el componente se destruya
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -218,18 +271,158 @@ get ventasFaltantes(): number {
     return this.ventas.reduce((sum, venta) => sum + Number(venta.total ?? 0), 0);
   }
 
+  get sistemaActualNombre(): string {
+    const payload = this.configService.getCurrentPayload();
+    if (!payload) return 'Actual';
+    return this.formatearNombreSistema(payload.sistema);
+  }
+
+  get identificadorActual(): number | null {
+    return this.configService.getCurrentPayload()?.identificador ?? null;
+  }
+
+  // ===== Getters para el CRM comparado =====
+  get ventasInstaladasComp(): number {
+    return this.instaladasTotalesComp;
+  }
+
+  get ventasFaltantesComp(): number {
+    return Math.max(0, this.metaComp - this.ventasInstaladasComp);
+  }
+
+  get totalSubidasComp(): number {
+    return this.ventasComp.reduce((sum, venta) => sum + Number(venta.total ?? 0), 0);
+  }
+
+  get sistemasDisponibles(): { key: SistemaType; label: string }[] {
+    const todos: SistemaType[] = this.configService.sistemas;
+    const actualPayload = this.configService.getCurrentPayload();
+    // Excluir el CRM actualmente activo para comparar únicamente con otros CRM registrados
+    const filtrados = actualPayload ? todos.filter(s => s !== actualPayload.sistema) : todos;
+    return filtrados.map(s => ({
+      key: s,
+      label: this.formatearNombreSistema(s)
+    }));
+  }
+
+  formatearNombreSistema(sistema: SistemaType): string {
+    switch (sistema) {
+      case 'mcortez': return 'Mcortez';
+      case 'telecom': return 'Telecom';
+      case 'konectar': return 'Konectar';
+      case 'comunica': return 'Comunica';
+      case 'optimus': return 'Optimus';
+      case 'eros': return 'EROS';
+      default: return sistema;
+    }
+  }
+
+  abrirModalComparar(): void {
+    const disponibles = this.sistemasDisponibles;
+    this.modalSistema = disponibles.length > 0 ? disponibles[0].key : 'telecom';
+    this.modalIdentificador = null;
+    this.modalError = null;
+    this.modalCargando = false;
+    this.mostrarModal = true;
+  }
+
+  cerrarModal(): void {
+    this.mostrarModal = false;
+    this.modalError = null;
+  }
+
+  confirmarComparacion(): void {
+    if (!this.modalIdentificador || this.modalIdentificador <= 0) {
+      this.modalError = 'Ingresa un Identificador válido (número mayor a 0).';
+      return;
+    }
+
+    const actual = this.configService.getCurrentPayload();
+    if (actual && actual.sistema === this.modalSistema && Number(actual.identificador) === Number(this.modalIdentificador)) {
+      this.modalError = `No puedes comparar con el mismo CRM (${this.formatearNombreSistema(this.modalSistema)}) y el mismo Identificador (${this.modalIdentificador}) que ya tienes abierto.`;
+      return;
+    }
+
+
+    this.modalCargando = true;
+    this.modalError = null;
+
+    this.configService.fetchPrimaryData(this.modalSistema, this.modalIdentificador).subscribe({
+      next: ({ config, primaryData }) => {
+        this.compConfig = config;
+        this.compUsuariosStr = (primaryData.usuarios || []).map(u => String(u)).join(',');
+        this.compSalasStr = (primaryData.salas || []).map(s => String(s)).join(',');
+        const m = primaryData.meta;
+        this.metaComp = m == null || m === '' ? 0 : (typeof m === 'number' ? m : parseInt(String(m), 10) || 0);
+        this.sistemaCompNombre = this.formatearNombreSistema(this.modalSistema);
+        this.identificadorComp = this.modalIdentificador;
+
+        this.comparacionService.activarComparacion(this.modalSistema, this.modalIdentificador!);
+        this.modalCargando = false;
+        this.mostrarModal = false;
+
+        // Cargar inmediatamente los datos del CRM comparado
+        this.obtenerDatosComparacion();
+      },
+      error: err => {
+        this.modalCargando = false;
+        this.modalError = err?.error?.message || err?.message || 'Error al conectar con el CRM seleccionado. Verifica el sistema y número.';
+      }
+    });
+  }
+
+  quitarComparacion(): void {
+    this.comparacionService.quitarComparacion();
+  }
+
+  obtenerDatosComparacion(): void {
+    if (!this.compConfig) return;
+    const hoy = new Date();
+    const fechaInicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    const fechaFinMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+
+    // 1. Obtener ventas del día
+    this.ventasService.getVentasCustom(this.compConfig, this.compUsuariosStr, this.compSalasStr, hoy, hoy).subscribe({
+      next: (data: { datos?: any[] }) => {
+        const ventas = (data.datos ?? []).slice();
+        ventas.sort((a: any, b: any) => Number(b.total) - Number(a.total));
+        if (JSON.stringify(this.ventasComp) !== JSON.stringify(ventas)) {
+          this.previousVentasComp = [...this.ventasComp];
+          this.ventasComp = ventas;
+        }
+      },
+      error: err => {
+        console.error('Error al obtener ventas de comparación:', err);
+      }
+    });
+
+    // 2. Obtener instaladas totales del mes
+    this.ventasService.getNumberInstaladasTvFilterCustom(this.compConfig, this.compUsuariosStr, this.compSalasStr, fechaInicioMes, fechaFinMes).subscribe({
+      next: (data: any) => {
+        const total = Number(data?.instaladas_totales ?? data?.datos?.instaladas_totales ?? 0);
+        this.instaladasTotalesComp = total;
+      },
+      error: err => {
+        console.error('Error al obtener número de instaladas de comparación:', err);
+      }
+    });
+  }
+
   // Método para verificar si una fila es nueva
   isNewRow(index: number): boolean {
-    // Si no tenemos datos anteriores, no es nueva
     if (!this.previousVentas || this.previousVentas.length === 0) return false;
-
-    // Si el índice es mayor que los datos anteriores, es nueva
     if (index >= this.previousVentas.length) return true;
-
-    // Comparar los datos para ver si ha cambiado
     const currentVenta = this.ventas[index];
     const previousVenta = this.previousVentas[index];
+    return JSON.stringify(currentVenta) !== JSON.stringify(previousVenta);
+  }
 
+  isNewRowComp(index: number): boolean {
+    if (!this.previousVentasComp || this.previousVentasComp.length === 0) return false;
+    if (index >= this.previousVentasComp.length) return true;
+    const currentVenta = this.ventasComp[index];
+    const previousVenta = this.previousVentasComp[index];
     return JSON.stringify(currentVenta) !== JSON.stringify(previousVenta);
   }
 }
+

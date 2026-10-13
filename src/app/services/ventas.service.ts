@@ -141,4 +141,44 @@ export class VentasService {
     const url = `${this.getBaseUrl()}/reportGeneral.php?op=tableEffectivenessUserFilter`;
     return this.http.post<{ datos: any[] }>(url, body.toString(), { headers });
   }
+
+  /**
+   * Obtener ventas para un sistema y configuración específicos (útil para comparación).
+   */
+  getVentasCustom(config: { apiUrl: string; authUser: string; authPass: string }, idUsers: string, idSalas: string, fechaInicio: Date, fechaFin: Date): Observable<{ datos: any[] }> {
+    const body = new HttpParams()
+      .set('fechaIni', this.formatDateLocal(fechaInicio))
+      .set('fechaFin', this.formatDateLocal(fechaFin))
+      .set('id_usuarios', idUsers)
+      .set('id_salas', idSalas);
+
+    const credentials = btoa(`${config.authUser}:${config.authPass}`);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${credentials}`
+    });
+
+    const url = `${config.apiUrl}/reportGeneral.php?op=tableReportDayTvFilter`;
+    return this.http.post<{ datos: any[] }>(url, body.toString(), { headers });
+  }
+
+  /**
+   * Obtener número de instaladas para un sistema y configuración específicos (útil para comparación).
+   */
+  getNumberInstaladasTvFilterCustom(config: { apiUrl: string; authUser: string; authPass: string }, idUsers: string, idSalas: string, fechaInicio: Date, fechaFin: Date): Observable<{ instaladas_totales: number }> {
+    const formData = new FormData();
+    formData.append('fechaIni', this.formatDateLocal(fechaInicio));
+    formData.append('fechaFin', this.formatDateLocal(fechaFin));
+    formData.append('id_usuarios', idUsers);
+    formData.append('id_salas', idSalas);
+
+    const credentials = btoa(`${config.authUser}:${config.authPass}`);
+    const headers = new HttpHeaders({
+      Authorization: `Basic ${credentials}`
+    });
+
+    const url = `${config.apiUrl}/reportGeneral.php?op=getNumberInstaladasTvFilter`;
+    return this.http.post<{ instaladas_totales: number }>(url, formData, { headers });
+  }
 }
+

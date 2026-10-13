@@ -9,7 +9,7 @@ import {
   ConfigFormPayload
 } from '../models/config.model';
 
-const SISTEMAS: SistemaType[] = ['mcortez', 'telecom', 'konectar', 'comunica', 'optimus'];
+const SISTEMAS: SistemaType[] = ['mcortez', 'telecom', 'konectar', 'comunica', 'optimus', 'eros'];
 
 /**
  * Configuración predefinida por sistema (URL API, credenciales, endpoint de data primaria).
@@ -42,6 +42,12 @@ const SISTEMAS_CONFIG: Record<SistemaType, SistemaConfig> = {
   },
   optimus: {
     apiUrl: 'https://optimus.holdingbpo.com/api',
+    authUser: 'kevinrrdev',
+    authPass: 'KD3z*1112099xD',
+    firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
+  },
+  eros: {
+    apiUrl: 'https://eros.holdingbpo.com/api',
     authUser: 'kevinrrdev',
     authPass: 'KD3z*1112099xD',
     firstEndpointPath: 'reportGeneral.php?op=getByIdTvFilter'
@@ -181,7 +187,54 @@ export class ConfigService {
     );
   }
 
+  /**
+   * Consulta data primaria para un sistema e identificador dados sin sobreescribir la configuración activa.
+   */
+  fetchPrimaryData(sistema: SistemaType, identificador: number): Observable<{ config: SistemaConfig; primaryData: PrimaryData }> {
+    const config = this.getConfigForSystem(sistema);
+    const url = `${config.apiUrl}/${config.firstEndpointPath.replace(/^\//, '')}`;
+    const body = new URLSearchParams({
+      id_tv_report: String(identificador)
+    }).toString();
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: 'Basic ' + btoa(`${config.authUser}:${config.authPass}`)
+    });
+
+    const toIdsArray = (val: number[] | string | null | undefined): number[] => {
+      if (val == null) return [];
+      if (Array.isArray(val)) return val.map(n => Number(n)).filter(n => !isNaN(n));
+      const s = String(val).trim();
+      if (!s) return [];
+      return s.split(',').map(x => parseInt(x.trim(), 10)).filter(n => !isNaN(n));
+    };
+
+    const notConfiguredMessage = 'No existe un reporte configurado para este identificador. Solo puede ingresar con un reporte configurado.';
+
+    return this.http.post<any>(url, body, { headers }).pipe(
+      switchMap((data: any) => {
+        if (data == null) {
+          return throwError(() => new Error(notConfiguredMessage));
+        }
+        const raw = data.datos ?? data;
+        const usuarios = toIdsArray(raw.usuarios ?? raw.usuarios_ids);
+        const salas = toIdsArray(raw.salas ?? raw.salas_ids);
+        const normalized: PrimaryData = {
+          meta: raw.meta ?? null,
+          usuarios,
+          salas
+        };
+        if (usuarios.length === 0 && salas.length === 0) {
+          return throwError(() => new Error(notConfiguredMessage));
+        }
+        return of({ config, primaryData: normalized });
+      })
+    );
+  }
+
   /** Limpia la configuración y la data primaria (útil para “cerrar sesión” o cambiar sistema). */
+
   clearConfig(): void {
     this.currentConfig = null;
     this.currentPayload = null;
