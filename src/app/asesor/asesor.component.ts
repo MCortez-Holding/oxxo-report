@@ -27,11 +27,11 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   // ===== Estado de Comparación =====
   isComparando = false;
   comparacionData?: ComparacionCrmData;
-  mostrarModal = false;
+  mostrarPanelConfig = false;
   modalSistema: SistemaType = 'telecom';
   modalIdentificador: number | null = null;
-  modalCargando = false;
-  modalError: string | null = null;
+  panelCargando = false;
+  panelError: string | null = null;
 
   // Datos del CRM Comparado (Derecha)
   ventasComp: any[] = [];
@@ -310,9 +310,9 @@ get ventasFaltantes(): number {
       case 'mcortez': return 'Mcortez';
       case 'telecom': return 'Telecom';
       case 'konectar': return 'Konectar';
-      case 'comunica': return 'Comunica';
-      case 'optimus': return 'Optimus';
-      case 'eros': return 'EROS';
+      case 'comunica': return 'Oxxo - Zeus';
+      case 'optimus': return 'Oxxo - Optimus';
+      case 'eros': return 'Mayolo';
       default: return sistema;
     }
   }
@@ -321,31 +321,30 @@ get ventasFaltantes(): number {
     const disponibles = this.sistemasDisponibles;
     this.modalSistema = disponibles.length > 0 ? disponibles[0].key : 'telecom';
     this.modalIdentificador = null;
-    this.modalError = null;
-    this.modalCargando = false;
-    this.mostrarModal = true;
+    this.panelError = null;
+    this.panelCargando = false;
+    this.mostrarPanelConfig = !this.mostrarPanelConfig;
   }
 
-  cerrarModal(): void {
-    this.mostrarModal = false;
-    this.modalError = null;
+  cerrarPanelConfig(): void {
+    this.mostrarPanelConfig = false;
+    this.panelError = null;
   }
 
   confirmarComparacion(): void {
     if (!this.modalIdentificador || this.modalIdentificador <= 0) {
-      this.modalError = 'Ingresa un Identificador válido (número mayor a 0).';
+      this.panelError = 'Ingresa un Identificador válido (número mayor a 0).';
       return;
     }
 
     const actual = this.configService.getCurrentPayload();
     if (actual && actual.sistema === this.modalSistema && Number(actual.identificador) === Number(this.modalIdentificador)) {
-      this.modalError = `No puedes comparar con el mismo CRM (${this.formatearNombreSistema(this.modalSistema)}) y el mismo Identificador (${this.modalIdentificador}) que ya tienes abierto.`;
+      this.panelError = `No puedes comparar con el mismo CRM (${this.formatearNombreSistema(this.modalSistema)}) y el mismo Identificador (${this.modalIdentificador}) que ya tienes abierto.`;
       return;
     }
 
-
-    this.modalCargando = true;
-    this.modalError = null;
+    this.panelCargando = true;
+    this.panelError = null;
 
     this.configService.fetchPrimaryData(this.modalSistema, this.modalIdentificador).subscribe({
       next: ({ config, primaryData }) => {
@@ -358,15 +357,15 @@ get ventasFaltantes(): number {
         this.identificadorComp = this.modalIdentificador;
 
         this.comparacionService.activarComparacion(this.modalSistema, this.modalIdentificador!);
-        this.modalCargando = false;
-        this.mostrarModal = false;
+        this.panelCargando = false;
+        this.mostrarPanelConfig = false;
 
         // Cargar inmediatamente los datos del CRM comparado
         this.obtenerDatosComparacion();
       },
       error: err => {
-        this.modalCargando = false;
-        this.modalError = err?.error?.message || err?.message || 'Error al conectar con el CRM seleccionado. Verifica el sistema y número.';
+        this.panelCargando = false;
+        this.panelError = err?.error?.message || err?.message || 'Error al conectar con el CRM seleccionado. Verifica el sistema y número.';
       }
     });
   }

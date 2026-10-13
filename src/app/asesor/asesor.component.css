@@ -175,51 +175,24 @@
 
 .modo-comparacion .content-overlay {
   max-width: 100% !important;
-  padding: 0 15px;
+  padding: 0 10px;
 }
 
 .comparacion-col {
   background: rgba(22, 27, 34, 0.4);
   border-radius: 16px;
-  padding: 12px;
+  padding: 12px 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.crm-badge {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  font-size: 0.85rem;
-  font-weight: 700;
-  padding: 4px 14px;
-  border-radius: 20px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.crm-badge-principal {
-  background: rgba(88, 166, 255, 0.15);
-  color: #58a6ff;
-  border: 1px solid rgba(88, 166, 255, 0.4);
-}
-
-.crm-badge-comparado {
-  background: rgba(255, 193, 7, 0.15);
-  color: #ffc107;
-  border: 1px solid rgba(255, 193, 7, 0.4);
-}
-
-.badge-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 8px;
-  background-color: currentColor;
-  box-shadow: 0 0 8px currentColor;
 }
 
 /* Títulos y fuentes adaptados para que sean 100% legibles en 2 columnas */
 .modo-comparacion .title-box {
+  width: 100%;
+  max-width: 580px;
   padding: 8px 12px;
   margin-bottom: 8px;
 }
@@ -229,6 +202,8 @@
 }
 
 .modo-comparacion .title-box-success {
+  width: 100%;
+  max-width: 580px;
   padding: 6px 10px;
   margin-bottom: 12px;
 }
@@ -237,44 +212,36 @@
   font-size: 0.95rem !important;
 }
 
-/* Estilos de encabezado para CRM Comparado */
-.title-box-comp {
-  background: linear-gradient(45deg, #d97706, #b45309) !important;
-  box-shadow: 0 0 15px rgba(217, 119, 6, 0.4) !important;
+/* Ajustes de tamaño de tabla en modo comparación: ancho al contenido */
+.modo-comparacion .table-responsive {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow-x: auto;
 }
 
-.title-box-success-comp {
-  background: linear-gradient(45deg, #0284c7, #0369a1) !important;
-  box-shadow: 0 0 15px rgba(2, 132, 199, 0.4) !important;
-}
-
-.table-header-comp {
-  background-color: #1f2328;
-  color: #ffc107;
-}
-
-/* Ajustes de tamaño de tabla en modo comparación */
 .modo-comparacion .table-glow {
   font-size: 0.92rem;
-  width: 100% !important;
+  width: auto !important;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .modo-comparacion .table-glow th,
 .modo-comparacion .table-glow td {
-  padding: 6px 8px;
+  padding: 6px 10px;
 }
 
 .modo-comparacion .table-glow th:not(:nth-child(2)),
 .modo-comparacion .table-glow td:not(:nth-child(2)) {
-  min-width: 65px;
+  min-width: 60px;
+  width: auto !important;
 }
 
-.modo-comparacion .table-glow td:nth-child(2) {
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.modo-comparacion .table-glow td:nth-child(2),
+.modo-comparacion .table-glow th:nth-child(2) {
   white-space: nowrap;
-  padding-right: 8px;
+  padding-right: 14px;
 }
 
 .modo-comparacion .table-glow tbody tr.top-1 {
@@ -293,134 +260,74 @@
 }
 
 /* ====================================================
-   ESTILOS DEL MODAL DE SELECCIÓN CRM
+   ESTILOS DEL PANEL EN LÍNEA PARA SELECCIÓN CRM (TV-FRIENDLY)
    ==================================================== */
 
-.crm-modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  z-index: 1050;
-  animation: fadeIn 0.2s ease-out;
-}
-
-.crm-modal-dialog {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 480px;
-  z-index: 1055;
-  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.crm-modal-content {
-  background-color: #161b22;
+.crm-inline-panel {
+  background: linear-gradient(180deg, #161b22, #0e1217);
   border: 1px solid #30363d;
-  border-radius: 14px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 193, 7, 0.2);
+  border-top: 4px solid #ffc107;
+  border-radius: 16px;
+  padding: 24px 30px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 193, 7, 0.15);
   color: #c9d1d9;
-  overflow: hidden;
+  text-align: left;
 }
 
-.crm-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #30363d;
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.crm-modal-title {
-  margin: 0;
-  font-size: 1.2rem;
+.inline-panel-title {
+  font-size: 1.35rem;
   font-weight: 700;
   color: #f0f6fc;
 }
 
-.btn-close-modal {
-  background: transparent;
-  border: none;
+.inline-panel-subtitle {
+  font-size: 1rem;
   color: #8b949e;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
 }
 
-.btn-close-modal:hover {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.crm-modal-body {
-  padding: 20px;
-  text-align: left;
-}
-
-.modal-description {
+.btn-inline-close {
+  padding: 6px 14px;
   font-size: 0.9rem;
-  color: #8b949e;
-  margin-bottom: 16px;
+  border-radius: 8px;
 }
 
-.modal-label {
-  font-size: 0.85rem;
+.inline-label {
+  font-size: 1rem;
   font-weight: 600;
   color: #e6edf3;
-  margin-bottom: 6px;
 }
 
-.modal-select,
-.modal-input {
+.inline-select,
+.inline-input {
   background-color: #0d1117 !important;
   border: 1px solid #30363d !important;
   color: #fff !important;
-  border-radius: 8px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  padding: 10px 16px;
+  height: auto;
 }
 
-.modal-select:focus,
-.modal-input:focus {
+.inline-select:focus,
+.inline-input:focus {
   border-color: #f59e0b !important;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3) !important;
 }
 
-.modal-error-alert {
-  font-size: 0.85rem;
+.btn-inline-cancel {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+.btn-inline-submit {
+  padding: 10px 24px;
+  font-size: 1.05rem;
+  border-radius: 10px;
+}
+
+.inline-error-alert {
+  font-size: 0.95rem;
   border-radius: 8px;
-  margin-top: 12px;
 }
-
-.crm-modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 14px 20px;
-  border-top: 1px solid #30363d;
-  background: rgba(0, 0, 0, 0.15);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -46%) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
+
