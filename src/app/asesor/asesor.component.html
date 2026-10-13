@@ -1,8 +1,113 @@
-<div class="main-container">
+<div class="main-container" [class.modo-comparacion]="isComparando">
     <canvas #particlesCanvas class="canvas-background"></canvas>
 <center>
     <div class="container-fluid content-overlay">
-        <div class="row justify-content-center">
+
+        <!-- ================= MODO COMPARACIÓN (2 REPORTES LADO A LADO) ================= -->
+        <div class="row g-3 justify-content-center" *ngIf="isComparando">
+            <!-- Columna Izquierda: CRM Principal / Actual -->
+            <div class="col-lg-6 col-12 comparacion-col">
+                <div class="crm-badge crm-badge-principal mb-2">
+                    <span class="badge-dot"></span> CRM ACTUAL: {{ sistemaActualNombre | uppercase }} <span *ngIf="identificadorActual">(ID: {{ identificadorActual }})</span>
+                </div>
+                <div class="alert alert-info title-box" role="alert">
+                    <h2 class="title-text">🏆 REPORTE POR ASESOR - Llevamos {{ totalSubidas }} ventas subidas 🏆</h2>
+                </div>
+                <div class="alert alert-info title-box-success" role="alert">
+                    <h2 class="title-text">
+                       🎉 Meta: {{ meta }} | Instaladas: {{ ventasInstaladas }} | Faltan: {{ ventasFaltantes }} 🎉
+                    </h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-glow" #tablaVentas>
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col">Pos.</th>
+                                <th scope="col">Asesor</th>
+                                <th scope="col">Subidas</th>
+                                <th scope="col">Programadas</th>
+                                <th scope="col">Atendidas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let venta of ventas; let i = index" [ngClass]="{
+                                'top-1': i === 0, 
+                                'top-2': i === 1, 
+                                'top-3': i === 2,
+                                'new-row': isNewRow(i)
+                              }">
+                                <td>
+                                    <span *ngIf="i === 0" class="medal-icon gold">🥇</span>
+                                    <span *ngIf="i === 1" class="medal-icon silver">🥈</span>
+                                    <span *ngIf="i === 2" class="medal-icon bronze">🥉</span>
+                                    <span *ngIf="i >= 3">{{i + 1}}</span>
+                                </td>
+                                <td>{{venta.asesor}}</td>
+                                <td>{{venta.total}}</td>
+                                <td>{{venta.vprogramadas}}</td>
+                                <td>{{venta.atendida}}</td>
+                            </tr>
+                            <tr *ngIf="ventas.length === 0">
+                                <td colspan="5" class="text-center py-4 text-muted">No se encontraron ventas para hoy</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: CRM Comparado -->
+            <div class="col-lg-6 col-12 comparacion-col">
+                <div class="crm-badge crm-badge-comparado mb-2">
+                    <span class="badge-dot"></span> CRM COMPARADO: {{ sistemaCompNombre | uppercase }} <span *ngIf="identificadorComp">(ID: {{ identificadorComp }})</span>
+                </div>
+                <div class="alert alert-info title-box title-box-comp" role="alert">
+                    <h2 class="title-text">🏆 REPORTE POR ASESOR - Llevamos {{ totalSubidasComp }} ventas subidas 🏆</h2>
+                </div>
+                <div class="alert alert-info title-box-success title-box-success-comp" role="alert">
+                    <h2 class="title-text">
+                       🎉 Meta: {{ metaComp }} | Instaladas: {{ ventasInstaladasComp }} | Faltan: {{ ventasFaltantesComp }} 🎉
+                    </h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-glow">
+                        <thead class="table-header table-header-comp">
+                            <tr>
+                                <th scope="col">Pos.</th>
+                                <th scope="col">Asesor</th>
+                                <th scope="col">Subidas</th>
+                                <th scope="col">Programadas</th>
+                                <th scope="col">Atendidas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let venta of ventasComp; let i = index" [ngClass]="{
+                                'top-1': i === 0, 
+                                'top-2': i === 1, 
+                                'top-3': i === 2,
+                                'new-row': isNewRowComp(i)
+                              }">
+                                <td>
+                                    <span *ngIf="i === 0" class="medal-icon gold">🥇</span>
+                                    <span *ngIf="i === 1" class="medal-icon silver">🥈</span>
+                                    <span *ngIf="i === 2" class="medal-icon bronze">🥉</span>
+                                    <span *ngIf="i >= 3">{{i + 1}}</span>
+                                </td>
+                                <td>{{venta.asesor}}</td>
+                                <td>{{venta.total}}</td>
+                                <td>{{venta.vprogramadas}}</td>
+                                <td>{{venta.atendida}}</td>
+                            </tr>
+                            <tr *ngIf="ventasComp.length === 0">
+                                <td colspan="5" class="text-center py-4 text-muted">No se encontraron ventas para hoy en este CRM</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= MODO NORMAL (1 SOLO REPORTE) ================= -->
+        <div class="row justify-content-center" *ngIf="!isComparando">
             <div class="col-xxl-10 col-xl-11 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div class="alert alert-info title-box" role="alert">
                     <h2 class="title-text">🏆 REPORTE POR ASESOR - Llevamos {{ totalSubidas }} ventas subidas 🏆</h2>
@@ -46,8 +151,67 @@
                 </div>
             </div>
         </div>
+
         <span class="countdown-timer">{{countdown}}</span>
     </div>
 </center>
     <div id="fireEffect" class="fire-effect"></div>
 </div>
+
+<!-- ================= MODAL DE SELECCIÓN DE CRM A COMPARAR ================= -->
+<div class="crm-modal-backdrop" *ngIf="mostrarModal" (click)="cerrarModal()"></div>
+<div class="crm-modal-dialog" *ngIf="mostrarModal">
+    <div class="crm-modal-content">
+        <div class="crm-modal-header">
+            <h5 class="crm-modal-title">
+                <i class="fas fa-columns me-2 text-warning"></i> Comparar con otro CRM
+            </h5>
+            <button type="button" class="btn-close-modal" (click)="cerrarModal()" [disabled]="modalCargando">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form (ngSubmit)="confirmarComparacion()">
+            <div class="crm-modal-body">
+                <p class="modal-description">
+                    Selecciona el CRM y el Identificador con el que deseas contrastar el reporte actual en pantalla dividida:
+                </p>
+
+                <div class="mb-3">
+                    <label for="modalSistema" class="form-label modal-label">CRM a comparar</label>
+                    <select id="modalSistema" name="modalSistema" [(ngModel)]="modalSistema" class="form-select modal-select" required>
+                        <option *ngFor="let s of sistemasDisponibles" [value]="s.key">
+                            {{ s.label }}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="modalIdentificador" class="form-label modal-label">Identificador de reporte</label>
+                    <input id="modalIdentificador" 
+                           name="modalIdentificador" 
+                           type="number" 
+                           min="1" 
+                           [(ngModel)]="modalIdentificador" 
+                           class="form-control modal-input" 
+                           placeholder="Ej: 10" 
+                           required />
+                </div>
+
+                <div *ngIf="modalError" class="alert alert-danger modal-error-alert py-2 mb-0" role="alert">
+                    <i class="fas fa-exclamation-circle me-1"></i> {{ modalError }}
+                </div>
+            </div>
+
+            <div class="crm-modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarModal()" [disabled]="modalCargando">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-warning btn-sm font-weight-bold" [disabled]="modalCargando || !modalIdentificador">
+                    <span *ngIf="!modalCargando"><i class="fas fa-check me-1"></i> Iniciar Comparación</span>
+                    <span *ngIf="modalCargando"><i class="fas fa-spinner fa-spin me-1"></i> Conectando...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
