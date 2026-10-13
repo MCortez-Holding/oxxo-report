@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, timeout } from 'rxjs';
 import { SistemaConfig, SistemaType } from '../models/config.model';
 import { ConfigService } from '../services/config.service';
 import { ComparacionCrmData, ComparacionService } from '../services/comparacion.service';
@@ -326,6 +326,10 @@ get ventasFaltantes(): number {
     this.mostrarPanelConfig = !this.mostrarPanelConfig;
   }
 
+  selectCrm(key: SistemaType): void {
+    this.modalSistema = key;
+  }
+
   cerrarPanelConfig(): void {
     this.mostrarPanelConfig = false;
     this.panelError = null;
@@ -346,7 +350,9 @@ get ventasFaltantes(): number {
     this.panelCargando = true;
     this.panelError = null;
 
-    this.configService.fetchPrimaryData(this.modalSistema, this.modalIdentificador).subscribe({
+    this.configService.fetchPrimaryData(this.modalSistema, this.modalIdentificador).pipe(
+      timeout(12000)
+    ).subscribe({
       next: ({ config, primaryData }) => {
         this.compConfig = config;
         this.compUsuariosStr = (primaryData.usuarios || []).map(u => String(u)).join(',');
@@ -364,8 +370,13 @@ get ventasFaltantes(): number {
         this.obtenerDatosComparacion();
       },
       error: err => {
+        console.error('Error en fetchPrimaryData:', err);
         this.panelCargando = false;
-        this.panelError = err?.error?.message || err?.message || 'Error al conectar con el CRM seleccionado. Verifica el sistema y número.';
+        if (err?.name === 'TimeoutError') {
+          this.panelError = 'Tiempo de espera agotado al conectar con el servidor. Verifica tu conexión o intenta con otro CRM.';
+        } else {
+          this.panelError = err?.error?.message || err?.message || 'Error al conectar con el CRM seleccionado. Verifica el sistema y número.';
+        }
       }
     });
   }
