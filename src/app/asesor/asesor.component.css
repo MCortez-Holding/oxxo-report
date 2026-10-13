@@ -297,7 +297,40 @@
   color: #e6edf3;
 }
 
-.inline-select,
+/* Selector de CRM en forma de botones/tarjetas (TV-friendly) */
+.crm-pill-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn-crm-pill {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  border: 2px solid #30363d;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.btn-crm-pill:hover,
+.btn-crm-pill:focus {
+  border-color: #58a6ff;
+  color: #fff;
+  background-color: #161b22;
+}
+
+.btn-crm-pill.active {
+  background-color: rgba(255, 193, 7, 0.15);
+  border-color: #ffc107;
+  color: #ffc107;
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+}
+
 .inline-input {
   background-color: #0d1117 !important;
   border: 1px solid #30363d !important;
@@ -308,7 +341,6 @@
   height: auto;
 }
 
-.inline-select:focus,
 .inline-input:focus {
   border-color: #f59e0b !important;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3) !important;
