@@ -21,16 +21,21 @@
                     </p>
 
                     <form (ngSubmit)="confirmarComparacion()" class="row g-3">
-                        <div class="col-md-6 col-12 text-start">
-                            <label for="panelSistema" class="form-label inline-label mb-2">CRM a comparar</label>
-                            <select id="panelSistema" name="panelSistema" [(ngModel)]="modalSistema" class="form-select inline-select" required>
-                                <option *ngFor="let s of sistemasDisponibles" [value]="s.key">
+                        <div class="col-12 text-start">
+                            <label class="form-label inline-label mb-2">Selecciona el CRM a comparar</label>
+                            <div class="crm-pill-selector">
+                                <button type="button" 
+                                        *ngFor="let s of sistemasDisponibles" 
+                                        class="btn-crm-pill" 
+                                        [class.active]="modalSistema === s.key"
+                                        (click)="modalSistema = s.key">
+                                    <i class="fas fa-check-circle me-1" *ngIf="modalSistema === s.key"></i>
                                     {{ s.label }}
-                                </option>
-                            </select>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="col-md-6 col-12 text-start">
+                        <div class="col-12 text-start mt-3">
                             <label for="panelIdentificador" class="form-label inline-label mb-2">Identificador de reporte</label>
                             <input id="panelIdentificador" 
                                    name="panelIdentificador" 
