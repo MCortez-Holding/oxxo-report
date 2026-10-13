@@ -13,13 +13,13 @@
 <div class="tv-floating-controls" *ngIf="isTvMode || esEfectividad">
   <ng-container *ngIf="isTvMode">
     <button type="button" class="btn-tv-control" (click)="toggleView('general')" [class.active]="currentPath === '/reporte-general'">
-      <i class="bi bi-pie-chart-fill"></i> General
+      <i class="bi bi-pie-chart-fill"></i> R1
     </button>
     <button type="button" class="btn-tv-control" (click)="toggleView('asesor')" [class.active]="currentPath === '/reporte-asesor'">
-      <i class="bi bi-people-fill"></i> Asesor
+      <i class="bi bi-people-fill"></i> R2
     </button>
     <button type="button" class="btn-tv-control" (click)="toggleView('efectividad')" [class.active]="currentPath === '/tabla-efectividad'">
-      <i class="bi bi-percent"></i> Efectividad
+      <i class="bi bi-percent"></i> R3
     </button>
   </ng-container>
 
@@ -46,7 +46,7 @@
   </div>
 
   <button *ngIf="isTvMode" type="button" class="btn-tv-control btn-exit-tv" (click)="exitTvMode()">
-    <i class="bi bi-fullscreen-exit"></i> Salir TV
+    <i class="bi bi-fullscreen-exit"></i> TV
   </button>
 </div>
 
