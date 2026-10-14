@@ -23,15 +23,20 @@
                     <form (ngSubmit)="confirmarComparacion()" class="row g-3">
                         <div class="col-12 text-start">
                             <label class="form-label inline-label mb-2">Selecciona el CRM a comparar</label>
-                            <div class="crm-pill-selector">
-                                <button type="button" 
-                                        *ngFor="let s of sistemasDisponibles" 
-                                        class="btn-crm-pill" 
-                                        [class.active]="modalSistema === s.key"
-                                        (click)="modalSistema = s.key">
-                                    <i class="fas fa-check-circle me-1" *ngIf="modalSistema === s.key"></i>
-                                    {{ s.label }}
-                                </button>
+                            <div class="crm-radio-group">
+                                <label *ngFor="let s of sistemasDisponibles; trackBy: trackBySistema" 
+                                       class="crm-radio-card"
+                                       [class.selected]="modalSistema === s.key"
+                                       (click)="selectCrm(s.key)">
+                                    <input type="radio" 
+                                           name="radioCrm" 
+                                           [value]="s.key" 
+                                           [checked]="modalSistema === s.key" 
+                                           (change)="selectCrm(s.key)" 
+                                           class="crm-radio-input" />
+                                    <span class="radio-custom-circle"></span>
+                                    <span class="radio-label-text">{{ s.label }}</span>
+                                </label>
                             </div>
                         </div>
 
@@ -68,7 +73,7 @@
         </div>
 
         <!-- ================= MODO COMPARACIÓN (2 REPORTES LADO A LADO) ================= -->
-        <div class="row g-3 justify-content-center" *ngIf="isComparando && !mostrarPanelConfig">
+        <div class="row g-3 justify-content-center" *ngIf="isComparando">
             <!-- Columna Izquierda: CRM Principal / Actual -->
             <div class="col-lg-6 col-12 comparacion-col">
                 <div class="alert alert-info title-box" role="alert">
@@ -165,7 +170,7 @@
         </div>
 
         <!-- ================= MODO NORMAL (1 SOLO REPORTE) ================= -->
-        <div class="row justify-content-center" *ngIf="!isComparando && !mostrarPanelConfig">
+        <div class="row justify-content-center" *ngIf="!isComparando">
             <div class="col-xxl-10 col-xl-11 col-lg-12 col-md-12 col-sm-12 col-12">
                 <div class="alert alert-info title-box" role="alert">
                     <h2 class="title-text">🏆 REPORTE POR ASESOR - Llevamos {{ totalSubidas }} ventas subidas 🏆</h2>
@@ -210,7 +215,7 @@
             </div>
         </div>
 
-        <span class="countdown-timer" *ngIf="!mostrarPanelConfig">{{countdown}}</span>
+        <span class="countdown-timer">{{countdown}}</span>
     </div>
 </center>
     <div id="fireEffect" class="fire-effect"></div>

@@ -297,14 +297,16 @@
   color: #e6edf3;
 }
 
-/* Selector de CRM en forma de botones/tarjetas (TV-friendly) */
-.crm-pill-selector {
+/* Selector de CRM con Radio Buttons (100% compatible con Smart TVs) */
+.crm-radio-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 14px;
 }
 
-.btn-crm-pill {
+.crm-radio-card {
+  display: inline-flex;
+  align-items: center;
   background-color: #0d1117;
   color: #c9d1d9;
   border: 2px solid #30363d;
@@ -314,21 +316,57 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  outline: none;
+  user-select: none;
 }
 
-.btn-crm-pill:hover,
-.btn-crm-pill:focus {
-  border-color: #58a6ff;
+.crm-radio-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.radio-custom-circle {
+  height: 20px;
+  width: 20px;
+  background-color: transparent;
+  border: 2px solid #8b949e;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 12px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.crm-radio-card:hover {
+  border-color: #8b949e;
   color: #fff;
-  background-color: #161b22;
 }
 
-.btn-crm-pill.active {
-  background-color: rgba(255, 193, 7, 0.15);
-  border-color: #ffc107;
-  color: #ffc107;
-  box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+.crm-radio-card.selected {
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+  color: #0d1117 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 20px rgba(255, 193, 7, 0.5) !important;
+}
+
+.crm-radio-card.selected .radio-custom-circle {
+  border-color: #0d1117;
+  background-color: #0d1117;
+}
+
+.crm-radio-card.selected .radio-custom-circle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffc107;
 }
 
 .inline-input {

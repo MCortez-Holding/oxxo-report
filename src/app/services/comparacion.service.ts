@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { SistemaType } from '../models/config.model';
 
 export interface ComparacionCrmData {
@@ -18,7 +18,7 @@ export class ComparacionService {
     identificador: null
   });
 
-  private readonly abrirModalRequest$ = new BehaviorSubject<boolean>(false);
+  private readonly abrirModalRequest$ = new Subject<boolean>();
 
   get estado$(): Observable<ComparacionCrmData> {
     return this.comparacionState$.asObservable();
