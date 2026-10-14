@@ -31,8 +31,10 @@ export class NavBarComponent implements OnInit, OnDestroy {
     return url === '/reporte-asesor';
   }
 
+  private timerId: any;
+
   ngOnInit(): void {
-    setInterval(() => {
+    this.timerId = setInterval(() => {
       this.currentTime = new Date();
     }, 1000);
 
@@ -42,6 +44,9 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.timerId) {
+      clearInterval(this.timerId);
+    }
     this.comparacionSub?.unsubscribe();
   }
 

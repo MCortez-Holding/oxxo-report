@@ -24,13 +24,15 @@
                         <div class="col-12 text-start">
                             <label class="form-label inline-label mb-2">Selecciona el CRM a comparar</label>
                             <div class="crm-radio-group">
-                                <label *ngFor="let s of sistemasDisponibles" 
+                                <label *ngFor="let s of sistemasDisponibles; trackBy: trackBySistema" 
                                        class="crm-radio-card"
-                                       [class.selected]="modalSistema === s.key">
+                                       [class.selected]="modalSistema === s.key"
+                                       (click)="selectCrm(s.key)">
                                     <input type="radio" 
                                            name="radioCrm" 
                                            [value]="s.key" 
-                                           [(ngModel)]="modalSistema" 
+                                           [checked]="modalSistema === s.key" 
+                                           (change)="selectCrm(s.key)" 
                                            class="crm-radio-input" />
                                     <span class="radio-custom-circle"></span>
                                     <span class="radio-label-text">{{ s.label }}</span>
