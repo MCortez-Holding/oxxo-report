@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription, timeout } from 'rxjs';
 import { SistemaConfig, SistemaType } from '../models/config.model';
 import { ConfigService } from '../services/config.service';
@@ -45,6 +45,7 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   modalIdentificador: number | null = null;
   panelCargando = false;
   panelError: string | null = null;
+  sistemasDisponibles: { key: SistemaType; label: string }[] = [];
 
   // Datos del CRM Comparado (Derecha)
   ventasComp: any[] = [];
@@ -64,10 +65,15 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     private ventasService: VentasService,
     private configService: ConfigService,
     private comparacionService: ComparacionService,
+<<<<<<< HEAD
     private asesorColumnasService: AsesorColumnasService
+=======
+    private ngZone: NgZone
+>>>>>>> 2e07a044961699c36958661b137db08bec8046d5
   ) {}
 
   ngOnInit(): void {
+    this.actualizarSistemasDisponibles();
     this.obtenerVentas();
     this.obtenerNumeroInstaladas();
     this.startCountdown();
@@ -154,9 +160,16 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+<<<<<<< HEAD
     setTimeout(() => {
       this.initParticleCanvas();
       this.actualizarDosColumnas();
+=======
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.initParticleCanvas();
+      });
+>>>>>>> 2e07a044961699c36958661b137db08bec8046d5
     });
   }
 
@@ -357,15 +370,19 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.ventasComp.reduce((sum, venta) => sum + Number(venta.total ?? 0), 0);
   }
 
-  get sistemasDisponibles(): { key: SistemaType; label: string }[] {
+  actualizarSistemasDisponibles(): void {
     const todos: SistemaType[] = this.configService.sistemas;
     const actualPayload = this.configService.getCurrentPayload();
     // Excluir el CRM actualmente activo para comparar únicamente con otros CRM registrados
     const filtrados = actualPayload ? todos.filter(s => s !== actualPayload.sistema) : todos;
-    return filtrados.map(s => ({
+    this.sistemasDisponibles = filtrados.map(s => ({
       key: s,
       label: this.formatearNombreSistema(s)
     }));
+  }
+
+  trackBySistema(index: number, item: { key: SistemaType; label: string }): string {
+    return item.key;
   }
 
   formatearNombreSistema(sistema: SistemaType): string {
@@ -381,8 +398,10 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   abrirModalComparar(): void {
-    const disponibles = this.sistemasDisponibles;
-    this.modalSistema = disponibles.length > 0 ? disponibles[0].key : 'telecom';
+    this.actualizarSistemasDisponibles();
+    if (!this.modalSistema || !this.sistemasDisponibles.some(s => s.key === this.modalSistema)) {
+      this.modalSistema = this.sistemasDisponibles.length > 0 ? this.sistemasDisponibles[0].key : 'telecom';
+    }
     this.modalIdentificador = null;
     this.panelError = null;
     this.panelCargando = false;
