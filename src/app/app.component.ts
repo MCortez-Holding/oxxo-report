@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { SistemaType } from './models/config.model';
 import { ConfigService } from './services/config.service';
 import { EfectividadUiService } from './services/efectividad-ui.service';
+import { AsesorColumnasService } from './services/asesor-columnas.service';
 
 /** Anuncios por sistema/empresa. Añade más rutas a cada array según necesites. */
 const ADS_BY_SYSTEM: Record<SistemaType, string[]> = {
@@ -49,7 +50,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
   constructor(
     private configService: ConfigService,
     private router: Router,
-    public efectividadUi: EfectividadUiService
+    public efectividadUi: EfectividadUiService,
+    public asesorColumnas: AsesorColumnasService
   ) {}
 
   /** Array de anuncios del sistema actual (según configuración). */
@@ -79,6 +81,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
   get esEfectividad(): boolean {
     return this.currentPath === '/tabla-efectividad';
+  }
+
+  get esReporteAsesor(): boolean {
+    return this.currentPath === '/reporte-asesor';
   }
 
   detectTvMode(): void {
@@ -159,56 +165,30 @@ ngAfterViewInit(): void {
     }
   }
 
-  startAdLoop(): void {
-    if (this.adInterval) {
-      clearTimeout(this.adInterval);
-      this.adInterval = null;
-    }
-    this.showAd = false;
-    this.showRandomAd();
+  private startAdLoop(): void {
+    const ads = this.currentAds;
+    if (ads.length === 0) return;
+
+    this.adInterval = setInterval(() => {
+      this.currentAd = ads[this.adIndex];
+      this.showAd = true;
+
+      setTimeout(() => {
+        this.showAd = false;
+        this.adIndex = (this.adIndex + 1) % ads.length;
+      }, 30000); // 30 segundos visible
+    }, 600000); // Cada 10 minutos
   }
 
-  private showRandomAd(): void {
-  const ads = this.currentAds;
-  if (ads.length === 0) {
-    this.showAd = false;
-    this.currentAd = '';
-    // No programar más intentos: sin imágenes no se muestra nada hasta que cambie el sistema/config
-    return;
+  isVideo(src: string): boolean {
+    return src.endsWith('.mp4');
   }
 
-  this.showAd = true;
-  this.currentAd = ads[this.adIndex];
-  this.adIndex = (this.adIndex + 1) % ads.length;
-
-  const duration = this.isVideo(this.currentAd) ? 20000 : 20000; // duración anuncio
-
-  if (this.isVideo(this.currentAd)) {
-    setTimeout(() => this.playVideoIfNeeded(), 100);
-  }
-
-  // Ocultar anuncio después de la duración definida
-  setTimeout(() => {
-    this.showAd = false;
-
-    // Después de ocultar anuncio esperar tiempo aleatorio para mostrar el siguiente
-    const randomTime = Math.floor(Math.random() * (100000 - 10000 + 1)) + 10000;
-    this.adInterval = setTimeout(() => {
-      this.showRandomAd();
-    }, randomTime);
-  }, duration);
-}
-
-
-  isVideo(file: string): boolean {
-    const videoExtensions = ['.mp4', '.webm', '.ogg', '.gif'];
-    return videoExtensions.some(ext => file.toLowerCase().endsWith(ext));
-  }
-
-  playVideoIfNeeded() {
+  private playVideoIfNeeded(): void {
     if (this.adVideoRef && this.adVideoRef.nativeElement) {
-      const video = this.adVideoRef.nativeElement;
-      video.play().catch(err => console.warn('Autoplay error:', err));
+      this.adVideoRef.nativeElement.play().catch(error => {
+        console.warn('Auto-play blocked even after click:', error);
+      });
     }
   }
 }

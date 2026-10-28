@@ -21,7 +21,24 @@
     <button type="button" class="btn-tv-control" (click)="toggleView('efectividad')" [class.active]="currentPath === '/tabla-efectividad'">
       <i class="bi bi-percent"></i> R3
     </button>
+    <!-- Botón Columnas en Modo TV para Reporte Asesor -->
+    <button *ngIf="esReporteAsesor"
+            type="button"
+            class="btn-tv-control"
+            [class.active]="asesorColumnas.modoDosColumnas"
+            (click)="asesorColumnas.toggleColumnas()"
+            title="Dividir en 2 tablas (primeros vendedores en la pantalla)">
+      <i class="fas fa-table-columns"></i> Columnas
+    </button>
   </ng-container>
+
+  <!-- Ajuste de filas para la primera tabla en Reporte Asesor (visible en Modo TV si está activo Cols) -->
+  <div class="tv-zoom-group" *ngIf="isTvMode && esReporteAsesor && asesorColumnas.modoDosColumnas" title="Filas de la primera tabla (T1)">
+    <span style="font-size: 0.72rem; color: #8b949e; padding-left: 4px; font-weight: 600;">T1:</span>
+    <button type="button" class="btn-tv-zoom" (click)="asesorColumnas.ajustarFilas(-1)" [disabled]="!asesorColumnas.puedeQuitarFila" title="Menos filas en la primera tabla">−</button>
+    <span class="zoom-value">{{ asesorColumnas.filasPrimeraTabla }}</span>
+    <button type="button" class="btn-tv-zoom" (click)="asesorColumnas.ajustarFilas(1)" [disabled]="!asesorColumnas.puedeAgregarFila" title="Más filas en la primera tabla">+</button>
+  </div>
 
   <div class="tv-zoom-group" *ngIf="esEfectividad" title="Filas por columna">
     <button type="button" class="btn-tv-zoom" (click)="efectividadUi.ajustarFilas(-1)" [disabled]="!efectividadUi.puedeQuitarFila" title="Menos filas por columna">−</button>
@@ -57,4 +74,3 @@
     <img *ngIf="isVideo(currentAd)" [src]="currentAd.replace('.mp4', '.gif')" class="animated-ad-video" />
   </div>
 </div>
-

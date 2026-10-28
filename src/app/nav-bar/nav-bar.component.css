@@ -62,3 +62,57 @@
   top: 70px;
   height: calc(100vh - 70px);
 }
+/* Control de filas para la primera tabla */
+.filas-selector-group {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(13, 17, 23, 0.9);
+  border: 1px solid rgba(88, 166, 255, 0.4);
+  border-radius: 8px;
+  padding: 2px 6px;
+  height: 31px;
+}
+
+.filas-label {
+  font-size: 0.75rem;
+  color: #8b949e;
+  font-weight: 600;
+  user-select: none;
+}
+
+.btn-fila-adjust {
+  background: transparent;
+  border: none;
+  color: #58a6ff;
+  font-weight: bold;
+  font-size: 0.95rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.btn-fila-adjust:hover:not(:disabled) {
+  background: rgba(88, 166, 255, 0.2);
+  color: #fff;
+}
+
+.btn-fila-adjust:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.filas-counter {
+  min-width: 24px;
+  text-align: center;
+  font-weight: bold;
+  color: #ffd700;
+  font-family: monospace;
+  font-size: 0.88rem;
+  user-select: none;
+}
