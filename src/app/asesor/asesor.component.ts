@@ -3,7 +3,13 @@ import { Subscription, timeout } from 'rxjs';
 import { SistemaConfig, SistemaType } from '../models/config.model';
 import { ConfigService } from '../services/config.service';
 import { ComparacionCrmData, ComparacionService } from '../services/comparacion.service';
+import { AsesorColumnasService } from '../services/asesor-columnas.service';
 import { VentasService } from '../services/ventas.service';
+
+export interface VentaItemColumna {
+  venta: any;
+  index: number;
+}
 
 @Component({
   selector: 'app-asesor',
@@ -23,6 +29,13 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   updateFrequency: number = 120; // Tiempo en segundos (2 minutos)
   private destroyed = false;
   private resizeListener!: () => void;
+
+  // ===== Estado de Modo 2 Columnas =====
+  modoDosColumnas = false;
+  ventasColumna1: VentaItemColumna[] = [];
+  ventasColumna2: VentaItemColumna[] = [];
+  private columnasSub?: Subscription;
+  private filasSub?: Subscription;
 
   // ===== Estado de Comparación =====
   isComparando = false;
@@ -52,6 +65,7 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     private ventasService: VentasService,
     private configService: ConfigService,
     private comparacionService: ComparacionService,
+    private asesorColumnasService: AsesorColumnasService,
     private ngZone: NgZone
   ) {}
 
@@ -69,6 +83,16 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.resetCountdown();
     }, this.updateFrequency * 1000);
+
+    // Escuchar cambios de estado de 2 columnas
+    this.columnasSub = this.asesorColumnasService.modoDosColumnasObservable.subscribe(activo => {
+      this.modoDosColumnas = activo;
+      this.actualizarDosColumnas();
+    });
+
+    this.filasSub = this.asesorColumnasService.filasPrimeraTablaObservable.subscribe(() => {
+      this.actualizarDosColumnas();
+    });
 
     // Escuchar cambios de estado de comparación
     this.comparacionSub = this.comparacionService.estado$.subscribe(state => {
@@ -90,12 +114,13 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-
-   ngOnDestroy() {
+  ngOnDestroy() {
     this.destroyed = true;
     if (this.resizeListener) {
       window.removeEventListener('resize', this.resizeListener);
     }
+    this.columnasSub?.unsubscribe();
+    this.filasSub?.unsubscribe();
     this.comparacionSub?.unsubscribe();
     this.abrirModalSub?.unsubscribe();
     // Limpiar los intervalos cuando el componente se destruya
@@ -107,7 +132,7 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-   private startCountdown() {
+  private startCountdown() {
     let secondsLeft = this.updateFrequency;
 
     this.countdownInterval = setInterval(() => {
@@ -132,6 +157,7 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+    this.actualizarDosColumnas();
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
         this.initParticleCanvas();
@@ -179,7 +205,7 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
       draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-ctx.fillStyle = '#FF0000';
+        ctx.fillStyle = '#FF0000';
         ctx.fill();
       }
     }
@@ -209,7 +235,7 @@ ctx.fillStyle = '#FF0000';
           const distance = dx * dx + dy * dy;
           if (distance < 10000) {
             ctx.beginPath();
-ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
+            ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
             ctx.lineWidth = 0.4;
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
@@ -229,24 +255,55 @@ ctx.strokeStyle = `rgba(255, 0, 0, ${1 - distance / 10000})`;
     requestAnimationFrame(animate);
   }
 
-obtenerVentas() {
-  const hoy = new Date();
+  get filasPrimeraColumna(): number {
+    return this.asesorColumnasService.filasPrimeraTabla;
+  }
 
-  this.ventasService.getVentas(hoy, hoy).subscribe({
-    next: (data: { datos?: any[] }) => {
-      const ventas = (data.datos ?? []).slice();
-      ventas.sort((a: any, b: any) => Number(b.total) - Number(a.total));
-      if (JSON.stringify(this.ventas) !== JSON.stringify(ventas)) {
-        this.previousVentas = [...this.ventas];
-        this.ventas = ventas;
-      }
-    },
-    error: (err) => {
-      console.error('Error al obtener ventas:', err);
+  /**
+   * Divide la lista total de ventas en dos subconjuntos:
+   * 1. Primera tabla: los primeros N registros especificados por el usuario
+   * 2. Segunda tabla: el resto de registros correlativamente hacia abajo
+   */
+  actualizarDosColumnas(): void {
+    if (!this.ventas || this.ventas.length === 0) {
+      this.ventasColumna1 = [];
+      this.ventasColumna2 = [];
+      return;
     }
-  });
-}
-/** getNumberInstaladasTvFilter: actualiza la meta con instaladas_totales (rango: primer día del mes hasta último día del mes). */
+
+    const limite = this.filasPrimeraColumna;
+    this.ventasColumna1 = this.ventas.slice(0, limite).map((venta, idx) => ({
+      venta,
+      index: idx
+    }));
+
+    this.ventasColumna2 = this.ventas.slice(limite).map((venta, idx) => ({
+      venta,
+      index: limite + idx
+    }));
+  }
+
+  obtenerVentas() {
+    const hoy = new Date();
+
+    this.ventasService.getVentas(hoy, hoy).subscribe({
+      next: (data: { datos?: any[] }) => {
+        const ventas = (data.datos ?? []).slice();
+        ventas.sort((a: any, b: any) => Number(b.total) - Number(a.total));
+        if (JSON.stringify(this.ventas) !== JSON.stringify(ventas)) {
+          this.previousVentas = [...this.ventas];
+          this.ventas = ventas;
+          this.asesorColumnasService.setTotalVentas(ventas.length);
+          this.actualizarDosColumnas();
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener ventas:', err);
+      }
+    });
+  }
+
+  /** getNumberInstaladasTvFilter: actualiza la meta con instaladas_totales (rango: primer día del mes hasta último día del mes). */
   obtenerNumeroInstaladas(): void {
     const hoy = new Date();
     const fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
@@ -268,9 +325,9 @@ obtenerVentas() {
   get ventasInstaladas(): number {
     return this.instaladasTotales;
   }
-get ventasFaltantes(): number {
-  return Math.max(0, this.meta - this.ventasInstaladas);
-}
+  get ventasFaltantes(): number {
+    return Math.max(0, this.meta - this.ventasInstaladas);
+  }
 
   get totalSubidas(): number {
     return this.ventas.reduce((sum, venta) => sum + Number(venta.total ?? 0), 0);
@@ -446,4 +503,3 @@ get ventasFaltantes(): number {
     return JSON.stringify(currentVenta) !== JSON.stringify(previousVenta);
   }
 }
-

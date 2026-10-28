@@ -23,6 +23,34 @@
         </li>
       </ul>
       <div class="d-flex align-items-center gap-2">
+        <!-- Botón Columnas con selector de filas en Reporte Asesor -->
+        <div *ngIf="!isConfigPage && esReporteAsesor && !isComparando" class="d-flex align-items-center gap-1">
+          <button type="button"
+                  class="btn btn-sm"
+                  [ngClass]="modoDosColumnas ? 'btn-info text-dark font-weight-bold' : 'btn-outline-secondary text-white'"
+                  (click)="onToggleColumnasClick()"
+                  title="Dividir en 2 tablas para ver los primeros vendedores en ambas">
+            <i class="fas fa-table-columns me-1"></i>
+            Columnas
+          </button>
+
+          <!-- Control de cantidad de filas para la primera tabla -->
+          <div *ngIf="modoDosColumnas" class="filas-selector-group" title="Filas de la primera tabla">
+            <span class="filas-label me-1">Filas T1:</span>
+            <button type="button"
+                    class="btn-fila-adjust"
+                    (click)="ajustarFilas(-1)"
+                    [disabled]="!asesorColumnasService.puedeQuitarFila"
+                    title="Menos filas en la primera tabla">−</button>
+            <span class="filas-counter">{{ filasPrimeraTabla }}</span>
+            <button type="button"
+                    class="btn-fila-adjust"
+                    (click)="ajustarFilas(1)"
+                    [disabled]="!asesorColumnasService.puedeAgregarFila"
+                    title="Más filas en la primera tabla">+</button>
+          </div>
+        </div>
+
         <button *ngIf="!isConfigPage && esReporteAsesor" 
                 type="button" 
                 class="btn btn-sm"

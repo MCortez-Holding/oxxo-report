@@ -400,4 +400,89 @@
   font-size: 0.95rem;
   border-radius: 8px;
 }
-
+
+/* ====================================================
+   ESTILOS PARA MODO 2 TABLAS / COLUMNAS
+   ==================================================== */
+
+.modo-dos-columnas .content-overlay {
+  max-width: 100% !important;
+  padding: 0 14px;
+}
+
+.dos-columnas-card {
+  background: rgba(22, 27, 34, 0.45);
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.dos-columnas-subhead {
+  background: rgba(13, 17, 23, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #c9d1d9;
+  text-align: left;
+}
+
+.modo-dos-columnas .table-responsive {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.modo-dos-columnas .table-glow {
+  font-size: 0.95rem;
+  width: 100% !important;
+  max-width: 100%;
+  margin: 0 auto;
+  border-spacing: 0 6px;
+}
+
+.modo-dos-columnas .table-glow th,
+.modo-dos-columnas .table-glow td {
+  padding: 6px 10px;
+}
+
+.modo-dos-columnas .table-glow th:not(:nth-child(2)),
+.modo-dos-columnas .table-glow td:not(:nth-child(2)) {
+  min-width: 60px;
+  width: auto !important;
+}
+
+.modo-dos-columnas .table-glow td:nth-child(2),
+.modo-dos-columnas .table-glow th:nth-child(2) {
+  white-space: nowrap;
+  padding-right: 14px;
+}
+
+.modo-dos-columnas .table-glow tbody tr.top-1 {
+  font-size: 1.15rem;
+  border-width: 2px;
+}
+
+.modo-dos-columnas .table-glow tbody tr.top-2 {
+  font-size: 1.05rem;
+  border-width: 2px;
+}
+
+.modo-dos-columnas .table-glow tbody tr.top-3 {
+  font-size: 1rem;
+  border-width: 2px;
+}
+
+/* En Modo TV con 2 tablas */
+body.modo-tv .modo-dos-columnas .dos-columnas-card {
+  padding: 10px;
+}
+
+body.modo-tv .modo-dos-columnas .table-glow th,
+body.modo-tv .modo-dos-columnas .table-glow td {
+  padding: 4px 8px;
+}

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ConfigService } from '../services/config.service';
 import { ComparacionService } from '../services/comparacion.service';
+import { AsesorColumnasService } from '../services/asesor-columnas.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -13,11 +14,16 @@ import { ComparacionService } from '../services/comparacion.service';
 export class NavBarComponent implements OnInit, OnDestroy {
   currentTime: Date = new Date();
   isComparando = false;
+  modoDosColumnas = false;
+  filasPrimeraTabla = 10;
   private comparacionSub?: Subscription;
+  private columnasSub?: Subscription;
+  private filasSub?: Subscription;
 
   constructor(
     private configService: ConfigService,
     private comparacionService: ComparacionService,
+    public asesorColumnasService: AsesorColumnasService,
     private router: Router
   ) {}
 
@@ -41,6 +47,14 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.comparacionSub = this.comparacionService.estado$.subscribe(state => {
       this.isComparando = state.activo;
     });
+
+    this.columnasSub = this.asesorColumnasService.modoDosColumnasObservable.subscribe(activo => {
+      this.modoDosColumnas = activo;
+    });
+
+    this.filasSub = this.asesorColumnasService.filasPrimeraTablaObservable.subscribe(filas => {
+      this.filasPrimeraTabla = filas;
+    });
   }
 
   ngOnDestroy(): void {
@@ -48,6 +62,16 @@ export class NavBarComponent implements OnInit, OnDestroy {
       clearInterval(this.timerId);
     }
     this.comparacionSub?.unsubscribe();
+    this.columnasSub?.unsubscribe();
+    this.filasSub?.unsubscribe();
+  }
+
+  onToggleColumnasClick(): void {
+    this.asesorColumnasService.toggleColumnas();
+  }
+
+  ajustarFilas(delta: number): void {
+    this.asesorColumnasService.ajustarFilas(delta);
   }
 
   onCompararCrmClick(): void {
@@ -71,4 +95,3 @@ export class NavBarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
   }
 }
-
