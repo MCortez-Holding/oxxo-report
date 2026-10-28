@@ -65,11 +65,8 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     private ventasService: VentasService,
     private configService: ConfigService,
     private comparacionService: ComparacionService,
-<<<<<<< HEAD
-    private asesorColumnasService: AsesorColumnasService
-=======
+    private asesorColumnasService: AsesorColumnasService,
     private ngZone: NgZone
->>>>>>> 2e07a044961699c36958661b137db08bec8046d5
   ) {}
 
   ngOnInit(): void {
@@ -160,16 +157,11 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-<<<<<<< HEAD
-    setTimeout(() => {
-      this.initParticleCanvas();
-      this.actualizarDosColumnas();
-=======
+    this.actualizarDosColumnas();
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
         this.initParticleCanvas();
       });
->>>>>>> 2e07a044961699c36958661b137db08bec8046d5
     });
   }
 
@@ -182,7 +174,6 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      this.actualizarDosColumnas();
     };
 
     resizeCanvas();
@@ -264,19 +255,14 @@ export class AsesorComponent implements OnInit, AfterViewInit, OnDestroy {
     requestAnimationFrame(animate);
   }
 
-  /**
-   * Calcula cuántas filas caben en la pantalla sin hacer scroll
-   * para la primera tabla.
-   */
   get filasPrimeraColumna(): number {
     return this.asesorColumnasService.filasPrimeraTabla;
   }
 
-
   /**
    * Divide la lista total de ventas en dos subconjuntos:
-   * 1. Primera tabla: los primeros N registros que caben en la pantalla
-   * 2. Segunda tabla: el resto de registros que siguen hacia abajo
+   * 1. Primera tabla: los primeros N registros especificados por el usuario
+   * 2. Segunda tabla: el resto de registros correlativamente hacia abajo
    */
   actualizarDosColumnas(): void {
     if (!this.ventas || this.ventas.length === 0) {
